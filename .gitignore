@@ -9,8 +9,6 @@ Thumbs.db
 
 # Environment variables (never commit secrets)
 .env
-.env.*
-!.env.example
 
 # =====================================================
 # FRONTEND (Next.js + TypeScript + Tailwind)
