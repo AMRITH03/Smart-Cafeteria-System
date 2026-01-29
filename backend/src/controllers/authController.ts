@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { registerSchema, signInSchema } from '../validations/auth.schema';
-import { createUser, signIn, logOut } from '../services/authService';
+import { registerSchema, signInSchema,forgotPasswordSchema, updatePasswordSchema } from '../validations/auth.schema';
+import { createUser, signIn, logOut, requestPasswordReset, updateUserPassword } from '../services/authService';
 import { STATUS } from '../interfaces/status.types';
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
@@ -82,3 +82,50 @@ export const logoutUser = async (req: Request, res: Response) => {
 
   return res.status(200).json({ message: 'Logged out successfully' });
 };
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const validatedData = forgotPasswordSchema.safeParse(req.body);
+
+      if(!validatedData.success){
+        res.status(STATUS.BADREQUEST).json({error : 'Validation Error' + validatedData.error});
+        return;
+      }
+
+      await requestPasswordReset(validatedData.data.email);
+
+      res.status(200).json({ 
+        message: 'If an account exists, a password reset link has been sent.' 
+      });
+    } catch (error: any) {
+      console.error('Forgot Password Error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+export const updatePassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const validatedData = updatePasswordSchema.safeParse(req.body);
+
+      if(!validatedData.success){
+        res.status(STATUS.BADREQUEST).json({error : 'Validation Error' + validatedData.error});
+        return;
+      }
+      
+      // Get the Access Token from the Authorization header (sent by frontend)
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        res.status(401).json({ message: 'Missing or invalid authentication token' });
+        return;
+      }
+
+      const accessToken = authHeader.split(' ')[1];
+      console.log(accessToken);
+      await updateUserPassword(accessToken, validatedData.data.password);
+
+      res.status(200).json({ message: 'Password updated successfully' });
+    } catch (error: any) {
+      console.error('Update Password Error:', error);
+      res.status(400).json({ message: error.message || 'Failed to update password' });
+    }
+  };
