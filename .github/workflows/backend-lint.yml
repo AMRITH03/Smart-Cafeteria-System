@@ -39,5 +39,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Biome checks
-        run: pnpm exec biome lint --write --unsafe --files-ignore-unknown=true
+      - name: Run Biome Validation
+        run: pnpm exec biome ci . --reporter=github
