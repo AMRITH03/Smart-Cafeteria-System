@@ -14,6 +14,10 @@ import {
 	updatePasswordSchema,
 } from "../validations/auth.schema";
 
+export const testRoute = async (res: Response): Promise<void> => {
+	res.send("Backend is running!");
+};
+
 export const registerUser = async (
 	req: Request,
 	res: Response,
@@ -36,15 +40,15 @@ export const registerUser = async (
 			return;
 		}
 
-		res
-			.status(result.statusCode)
-			.json({
-				success: true,
-				message: "User registered successfully",
-				data: result.data,
-			});
+		res.status(result.statusCode).json({
+			success: true,
+			message: "User registered successfully",
+			data: result.data,
+		});
 	} catch (error) {
-		res.status(STATUS.SERVERERROR).json({ error: "Internal Server Error" });
+		res
+			.status(STATUS.SERVERERROR)
+			.json({ message: "Internal Server Error", error: error });
 	}
 };
 
@@ -84,15 +88,15 @@ export const signInUser = async (
 			maxAge: 30 * 24 * 60 * 60 * 1000,
 		});
 
-		res
-			.status(result.statusCode)
-			.json({
-				success: true,
-				message: "User signed in successfully",
-				data: result.data,
-			});
+		res.status(result.statusCode).json({
+			success: true,
+			message: "User signed in successfully",
+			data: result.data,
+		});
 	} catch (error) {
-		res.status(STATUS.SERVERERROR).json({ error: "Internal Server Error" });
+		res
+			.status(STATUS.SERVERERROR)
+			.json({ message: "Internal Server Error", error: error });
 	}
 };
 
@@ -109,7 +113,9 @@ export const logoutUser = async (req: Request, res: Response) => {
 		}
 	}
 
-	return res.status(200).json({ message: "Logged out successfully" });
+	return res
+		.status(STATUS.SUCCESS)
+		.json({ message: "Logged out successfully" });
 };
 
 export const forgotPassword = async (
@@ -128,12 +134,12 @@ export const forgotPassword = async (
 
 		await requestPasswordReset(validatedData.data.email);
 
-		res.status(200).json({
+		res.status(STATUS.SUCCESS).json({
 			message: "If an account exists, a password reset link has been sent.",
 		});
-	} catch (error: any) {
+	} catch (error) {
 		console.error("Forgot Password Error:", error);
-		res.status(500).json({ message: "Internal server error" });
+		res.status(STATUS.SERVERERROR).json({ message: "Internal server error" });
 	}
 };
 
@@ -155,7 +161,7 @@ export const updatePassword = async (
 		const authHeader = req.headers.authorization;
 		if (!authHeader || !authHeader.startsWith("Bearer ")) {
 			res
-				.status(401)
+				.status(STATUS.UNAUTHORIZED)
 				.json({ message: "Missing or invalid authentication token" });
 			return;
 		}
@@ -164,11 +170,18 @@ export const updatePassword = async (
 		console.log(accessToken);
 		await updateUserPassword(accessToken, validatedData.data.password);
 
-		res.status(200).json({ message: "Password updated successfully" });
-	} catch (error: any) {
-		console.error("Update Password Error:", error);
 		res
-			.status(400)
-			.json({ message: error.message || "Failed to update password" });
+			.status(STATUS.SUCCESS)
+			.json({ message: "Password updated successfully" });
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Error:", error.message);
+			res
+				.status(STATUS.SERVERERROR)
+				.json({ error: error.message || "failed to update password" });
+		} else {
+			console.error("Unknown error:", error);
+			res.status(500).json({ error: "An unknown error occurred" });
+		}
 	}
 };

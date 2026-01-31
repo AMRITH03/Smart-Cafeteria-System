@@ -10,7 +10,8 @@
 		"lint": "biome lint .",
 		"check": "biome check .",
 		"type-check": "tsc --noEmit",
-		"pre-commit": "lint-staged"
+		"pre-commit": "lint-staged",
+		"fix": "biome check --write ."
 	},
 	"keywords": [],
 	"author": "",
