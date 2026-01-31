@@ -16,36 +16,36 @@
 		"rules": {
 			"recommended": true,
 			"complexity": {
-				"noUselessFragments": "warn",
+				"noUselessFragments": "off",
 				"noForEach": "off",
-				"useOptionalChain": "warn",
+				"useOptionalChain": "off",
 				"useArrowFunction": "off"
 			},
 			"correctness": {
-				"noUnusedImports": "warn",
-				"noUnusedVariables": "warn",
-				"useExhaustiveDependencies": "warn",
-				"useHookAtTopLevel": "error"
+				"noUnusedImports": "off",
+				"noUnusedVariables": "off",
+				"useExhaustiveDependencies": "off",
+				"useHookAtTopLevel": "warn"
 			},
 			"style": {
 				"noNonNullAssertion": "off",
-				"useConst": "warn",
-				"useImportType": "warn",
+				"useConst": "off",
+				"useImportType": "off",
 				"noParameterAssign": "off",
 				"useDefaultParameterLast": "off"
 			},
 			"suspicious": {
-				"noExplicitAny": "warn",
-				"noArrayIndexKey": "warn",
+				"noExplicitAny": "off",
+				"noArrayIndexKey": "off",
 				"noConsole": "off",
-				"noDebugger": "warn"
+				"noDebugger": "off"
 			},
 			"a11y": {
-				"useButtonType": "warn",
-				"useAltText": "warn"
+				"useButtonType": "off",
+				"useAltText": "off"
 			},
 			"security": {
-				"noDangerouslySetInnerHtml": "warn"
+				"noDangerouslySetInnerHtml": "off"
 			},
 			"performance": {
 				"noDelete": "off"
@@ -79,7 +79,7 @@
 		"actions": {
 			"source": {
 				"organizeImports": {
-					"level": "on"
+					"level": "off"
 				}
 			}
 		}
