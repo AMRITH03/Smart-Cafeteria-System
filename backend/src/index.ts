@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import express from "express";
 import authRoutes from "./routes/authRoutes";
 import bookingRoutes from "./routes/bookingRoutes";
+import tokenRoutes from "./routes/tokenRoutes";
 
 dotenv.config();
 
@@ -20,6 +21,9 @@ app.use("/api/auth", authRoutes);
 
 //BOOKING ROUTES
 app.use("/api/bookings", bookingRoutes);
+
+//TOKEN ROUTES
+app.use("/api/tokens", tokenRoutes);
 
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
