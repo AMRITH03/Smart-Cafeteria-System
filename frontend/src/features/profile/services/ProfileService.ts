@@ -1,19 +1,14 @@
-import { apiGet } from '@/lib/api';
-import { UserProfile } from '../types/profile.types';
-
-const MOCK_PROFILE: UserProfile = {
-    id: 'u1',
-    name: 'Irene Divya',
-    email: 'irene@example.com',
-};
+import { apiGet, apiPut } from "@/lib/api";
+import type { UserProfile, UpdateProfilePayload, ProfileResponse } from "../types/profile.types";
 
 export const ProfileService = {
-    getProfile: async (): Promise<UserProfile> => {
-        try {
-            return await apiGet<UserProfile>('/user/profile');
-        } catch (error) {
-            console.warn('Backend not detected, using mock profile.');
-            return MOCK_PROFILE;
-        }
-    },
+	getProfile: async (): Promise<UserProfile> => {
+		const response = await apiGet<ProfileResponse>("api/auth/profile");
+		return response.data;
+	},
+
+	updateProfile: async (payload: UpdateProfilePayload): Promise<UserProfile> => {
+		const response = await apiPut<ProfileResponse>("api/auth/profile", payload);
+		return response.data;
+	},
 };
