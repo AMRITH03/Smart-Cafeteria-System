@@ -3,8 +3,10 @@ import express from "express";
 import {
 	assignWalkInMealController,
 	confirmPaymentController,
+	confirmWalletRechargeController,
 	contributeToWalletController,
 	createPaymentIntentController,
+	createWalletRechargeSessionController,
 	extendPaymentWindowController,
 	getCheckoutSessionStatusController,
 	getLeftoverFoodController,
@@ -104,6 +106,13 @@ router.post("/stripe/confirm", requireAuth, confirmPaymentController);
 // ============================================
 
 /**
+ * POST /api/payments/personal-wallet/create-session
+ * Create a Stripe Checkout Session for recharging personal wallet (embedded UI mode)
+ * Body: { amount: number, return_url: string }
+ */
+router.post("/personal-wallet/create-session", requireAuth, createWalletRechargeSessionController);
+
+/**
  * GET /api/payments/personal-wallet/balance
  * Get user's personal wallet balance
  */
@@ -118,6 +127,13 @@ router.get(
 	requireAuth,
 	getCheckoutSessionStatusController
 );
+
+/**
+ * POST /api/payments/personal-wallet/confirm-recharge
+ * Confirm wallet recharge after successful Stripe Checkout Session payment
+ * Body: { session_id: string }
+ */
+router.post("/personal-wallet/confirm-recharge", requireAuth, confirmWalletRechargeController);
 
 /**
  * GET /api/payments/personal-wallet/transactions?limit=20&offset=0

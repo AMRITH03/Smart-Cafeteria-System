@@ -3,8 +3,10 @@ import { STATUS } from "../interfaces/status.types";
 import {
 	assignWalkInMeal,
 	confirmStripePayment,
+	confirmWalletRecharge,
 	contributeToBookingWallet,
 	createPaymentIntent,
+	createWalletRechargeSession,
 	detectLeftoverFood,
 	extendPaymentWindow,
 	getBookingWalletContributions,
@@ -461,6 +463,117 @@ export const stripeWebhookController = async (req: Request, res: Response): Prom
 // ============================================
 // Personal Wallet Controllers
 // ============================================
+
+/**
+ * POST /api/payments/personal-wallet/create-session
+ * Create a Stripe Checkout Session for recharging personal wallet (embedded UI mode)
+ */
+export const createWalletRechargeSessionController = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	try {
+		if (!req.user || !req.token) {
+			res.status(STATUS.UNAUTHORIZED).json({
+				success: false,
+				error: "User not authenticated",
+			});
+			return;
+		}
+
+		const validatedData = createWalletRechargeIntentSchema.safeParse(req.body);
+
+		if (!validatedData.success) {
+			res.status(STATUS.BADREQUEST).json({
+				success: false,
+				error: `Validation Error: ${validatedData.error.message}`,
+			});
+			return;
+		}
+
+		const result = await createWalletRechargeSession(
+			req.token,
+			req.user.id,
+			validatedData.data.amount,
+			validatedData.data.return_url
+		);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({
+				success: false,
+				error: result.error,
+			});
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			message: "Checkout session created successfully",
+			data: result.data,
+		});
+	} catch (error) {
+		res.status(STATUS.SERVERERROR).json({
+			success: false,
+			message: "Internal Server Error",
+			error: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+};
+
+/**
+ * POST /api/payments/personal-wallet/confirm-recharge
+ * Confirm wallet recharge after successful Stripe Checkout Session payment
+ */
+export const confirmWalletRechargeController = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	try {
+		if (!req.user || !req.token) {
+			res.status(STATUS.UNAUTHORIZED).json({
+				success: false,
+				error: "User not authenticated",
+			});
+			return;
+		}
+
+		const validatedData = confirmWalletRechargeSchema.safeParse(req.body);
+
+		if (!validatedData.success) {
+			res.status(STATUS.BADREQUEST).json({
+				success: false,
+				error: `Validation Error: ${validatedData.error.message}`,
+			});
+			return;
+		}
+
+		const result = await confirmWalletRecharge(
+			req.token,
+			req.user.id,
+			validatedData.data.session_id
+		);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({
+				success: false,
+				error: result.error,
+			});
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			message: "Wallet recharged successfully",
+			data: result.data,
+		});
+	} catch (error) {
+		res.status(STATUS.SERVERERROR).json({
+			success: false,
+			message: "Internal Server Error",
+			error: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+};
 
 /**
  * GET /api/payments/personal-wallet/balance

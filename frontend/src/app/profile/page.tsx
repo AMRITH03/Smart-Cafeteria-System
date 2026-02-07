@@ -95,7 +95,7 @@ export default function ProfilePage() {
 						</div>
 						<div className="flex items-center gap-2">
 							<span className="text-sm font-bold text-gray-900 italic">
-								₹{wallet?.balance.toFixed(2) || "0.00"}
+								₹{profile?.wallet_balance?.toFixed(2) ?? "0.00"}
 							</span>
 							{isWalletOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
 						</div>

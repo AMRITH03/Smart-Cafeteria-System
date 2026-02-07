@@ -976,6 +976,248 @@ export const handleStripeWebhook = async (
 // ============================================
 
 /**
+ * Create a Stripe Checkout Session for recharging personal wallet (embedded UI mode).
+ * Uses Stripe Embedded Checkout so the frontend can render the payment form inline.
+ */
+export const createWalletRechargeSession = async (
+	token: string,
+	userId: string,
+	amount: number,
+	returnUrl: string
+): Promise<
+	ServiceResponse<{
+		client_secret: string;
+		session_id: string;
+	}>
+> => {
+	try {
+		const auth_supa = getAuthenticatedClient(token);
+
+		// Verify user exists
+		const { data: user, error: userError } = await auth_supa
+			.from("users")
+			.select("id, email, first_name, last_name")
+			.eq("id", userId)
+			.single();
+
+		if (userError || !user) {
+			return {
+				success: false,
+				error: "User not found",
+				statusCode: STATUS.NOTFOUND,
+			};
+		}
+
+		// Create Stripe Checkout Session in embedded mode
+		const session = await stripe.checkout.sessions.create({
+			ui_mode: "embedded",
+			line_items: [
+				{
+					price_data: {
+						currency: "inr",
+						product_data: {
+							name: "Wallet Recharge",
+							description: `Recharge personal wallet with ₹${amount}`,
+						},
+						unit_amount: Math.round(amount * 100), // Stripe expects amount in smallest currency unit (paise)
+					},
+					quantity: 1,
+				},
+			],
+			mode: "payment",
+			return_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
+			metadata: {
+				user_id: userId,
+				type: "wallet_recharge",
+				amount: amount.toString(),
+			},
+			customer_email: user.email,
+		});
+
+		if (!session.client_secret) {
+			return {
+				success: false,
+				error: "Failed to create checkout session – no client secret returned",
+				statusCode: STATUS.SERVERERROR,
+			};
+		}
+
+		return {
+			success: true,
+			data: {
+				client_secret: session.client_secret,
+				session_id: session.id,
+			},
+			statusCode: STATUS.CREATED,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Failed to create checkout session",
+			statusCode: STATUS.SERVERERROR,
+		};
+	}
+};
+
+/**
+ * Confirm wallet recharge after successful Stripe Checkout Session payment.
+ * Validates session is paid, inserts wallet_transactions record, and updates users.wallet_balance.
+ */
+export const confirmWalletRecharge = async (
+	token: string,
+	userId: string,
+	sessionId: string
+): Promise<
+	ServiceResponse<{
+		user_id: string;
+		amount_recharged: number;
+		new_balance: number;
+		transaction_id: string;
+	}>
+> => {
+	try {
+		// Retrieve the checkout session from Stripe
+		const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+		// Verify session belongs to this user
+		if (session.metadata?.user_id !== userId) {
+			return {
+				success: false,
+				error: "Session does not belong to this user",
+				statusCode: STATUS.FORBIDDEN,
+			};
+		}
+
+		// Verify session is for wallet recharge
+		if (session.metadata?.type !== "wallet_recharge") {
+			return {
+				success: false,
+				error: "Session is not a wallet recharge session",
+				statusCode: STATUS.BADREQUEST,
+			};
+		}
+
+		// Verify payment is complete
+		if (session.status !== "complete" || session.payment_status !== "paid") {
+			return {
+				success: false,
+				error: "Payment has not been completed yet",
+				statusCode: STATUS.BADREQUEST,
+			};
+		}
+
+		// Check if this session was already processed (idempotency)
+		const { data: existingTx, error: existingTxError } = await service_client
+			.from("wallet_transactions")
+			.select("id")
+			.eq("session_id", sessionId)
+			.eq("user_id", userId)
+			.eq("transaction_type", "recharge")
+			.maybeSingle();
+
+		if (existingTx) {
+			// Already processed – return current balance
+			const { data: user } = await service_client
+				.from("users")
+				.select("wallet_balance")
+				.eq("id", userId)
+				.single();
+
+			return {
+				success: true,
+				data: {
+					user_id: userId,
+					amount_recharged: (session.amount_total || 0) / 100,
+					new_balance: Number(user?.wallet_balance || 0),
+					transaction_id: existingTx.id,
+				},
+				statusCode: STATUS.SUCCESS,
+			};
+		}
+
+		const rechargeAmount = (session.amount_total || 0) / 100; // Convert from paise to rupees
+
+		// Get current wallet balance
+		const { data: currentUser, error: userError } = await service_client
+			.from("users")
+			.select("wallet_balance")
+			.eq("id", userId)
+			.single();
+
+		if (userError || !currentUser) {
+			return {
+				success: false,
+				error: "User not found",
+				statusCode: STATUS.NOTFOUND,
+			};
+		}
+
+		const newBalance = Number(currentUser.wallet_balance) + rechargeAmount;
+
+		// Insert wallet_transactions record
+		const { data: transaction, error: txError } = await service_client
+			.from("wallet_transactions")
+			.insert({
+				user_id: userId,
+				amount: rechargeAmount,
+				transaction_type: "recharge",
+				session_id: sessionId,
+				description: `Wallet recharge via Stripe Checkout – ₹${rechargeAmount}`,
+			})
+			.select("id")
+			.single();
+
+		if (txError || !transaction) {
+			return {
+				success: false,
+				error: "Failed to record wallet transaction",
+				statusCode: STATUS.SERVERERROR,
+			};
+		}
+
+		// Update wallet_balance in users table
+		const { error: updateError } = await service_client
+			.from("users")
+			.update({ wallet_balance: newBalance })
+			.eq("id", userId);
+
+		if (updateError) {
+			return {
+				success: false,
+				error: "Failed to update wallet balance",
+				statusCode: STATUS.SERVERERROR,
+			};
+		}
+
+		// Also insert into wallet_topups for audit
+		await service_client.from("wallet_topups").insert({
+			user_id: userId,
+			amount: rechargeAmount,
+			payment_method: "stripe",
+			gateway_transaction_id: sessionId,
+			status: "success",
+		});
+
+		return {
+			success: true,
+			data: {
+				user_id: userId,
+				amount_recharged: rechargeAmount,
+				new_balance: newBalance,
+				transaction_id: transaction.id,
+			},
+			statusCode: STATUS.SUCCESS,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Failed to confirm wallet recharge",
+			statusCode: STATUS.SERVERERROR,
+		};
+	}
+};
+
+/**
  * Get user's personal wallet balance
  */
 export const getWalletBalance = async (
@@ -1014,17 +1256,18 @@ export const getWalletBalance = async (
 };
 
 /**
- * Get the status of a Checkout Session
- * Useful for polling or checking session status on the frontend
+ * Get the status of a Stripe Checkout Session.
+ * Useful for polling session status during payment on the frontend.
  */
 export const getCheckoutSessionStatus = async (
 	sessionId: string
 ): Promise<
 	ServiceResponse<{
+		session_id: string;
 		status: string;
 		payment_status: string;
 		amount_total: number;
-		currency: string;
+		customer_email: string | null;
 	}>
 > => {
 	try {
@@ -1033,10 +1276,11 @@ export const getCheckoutSessionStatus = async (
 		return {
 			success: true,
 			data: {
+				session_id: session.id,
 				status: session.status || "unknown",
 				payment_status: session.payment_status || "unknown",
-				amount_total: (session.amount_total || 0) / 100,
-				currency: session.currency || "inr",
+				amount_total: session.amount_total || 0,
+				customer_email: (session.customer_details?.email || session.customer_email) ?? null,
 			},
 			statusCode: STATUS.SUCCESS,
 		};

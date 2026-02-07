@@ -1,22 +1,29 @@
 "use client";
 
-import { useWallet, useTopUp } from "@/hooks/wallet/useWallet";
+import { useWalletBalance, useCreateCheckoutSession } from "@/hooks/wallet/useWallet";
 import { WalletDisplay } from "./WalletDisplay";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export function WalletDashboard() {
 	const router = useRouter();
-	const { data: wallet, isLoading } = useWallet();
-	const { mutate: topUp, isPending: isTopUpPending } = useTopUp();
+	const { data: walletData, isLoading } = useWalletBalance();
+	const { mutate: createSession, isPending: isSessionPending } = useCreateCheckoutSession();
 
 	const handleTopUp = (amount: number) => {
-		topUp(amount, {
-			onSuccess: (data) => {
-				// Redirect to a dedicated top-up payment page
-				router.push(`/wallet/topup/${data.transactionId}?secret=${data.clientSecret}`);
-			},
-		});
+		// Build the return_url pointing to the success page where we verify + confirm
+		const returnUrl = `${window.location.origin}/wallet/topup/success`;
+
+		createSession(
+			{ amount, return_url: returnUrl },
+			{
+				onSuccess: (res) => {
+					const { client_secret, session_id } = res.data;
+					// Navigate to the embedded checkout page, passing the client secret & session id
+					router.push(`/wallet/topup/${session_id}?secret=${encodeURIComponent(client_secret)}`);
+				},
+			}
+		);
 	};
 
 	if (isLoading) {
@@ -28,14 +35,12 @@ export function WalletDashboard() {
 		);
 	}
 
-	if (!wallet) return null;
-
 	return (
 		<WalletDisplay
-			balance={wallet.balance}
-			currency={wallet.currency}
+			balance={walletData?.wallet_balance ?? 0}
+			currency="INR"
 			onTopUp={handleTopUp}
-			isTopUpPending={isTopUpPending}
+			isTopUpPending={isSessionPending}
 		/>
 	);
 }
