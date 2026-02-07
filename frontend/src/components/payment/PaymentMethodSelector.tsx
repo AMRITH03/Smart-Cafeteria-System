@@ -1,4 +1,4 @@
-import type { PaymentMethod } from "../types/payment.types";
+import type { PaymentMethod } from "@/types/payment/payment.types";
 
 interface PaymentMethodSelectorProps {
 	selectedMethod: PaymentMethod | null;

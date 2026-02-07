@@ -1,4 +1,4 @@
-import { Transaction } from "../types/transaction.types";
+import { Transaction } from "@/types/transactions/transaction.types";
 
 interface Props {
 	transaction: Transaction;

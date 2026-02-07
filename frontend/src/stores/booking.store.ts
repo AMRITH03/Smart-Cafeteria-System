@@ -33,7 +33,7 @@ export const useBookingStore = create<BookingStoreState>()(
 							return lowerName.includes("breakfast");
 						case "lunch":
 							return lowerName.includes("lunch");
-						case "snacks":
+						case "snack":
 							return lowerName.includes("snack");
 						case "dinner":
 							return lowerName.includes("dinner");

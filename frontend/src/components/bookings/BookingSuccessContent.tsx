@@ -1,4 +1,4 @@
-import { Booking } from "../types/booking.types";
+import { Booking } from "@/types/booking.types";
 import { CheckCircle2, Calendar, Clock, Users, Utensils } from "lucide-react";
 
 interface Props {

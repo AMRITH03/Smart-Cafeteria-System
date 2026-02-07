@@ -1,4 +1,4 @@
-import type { BillSummary as BillSummaryType } from "../types/payment.types";
+import type { BillSummary as BillSummaryType } from "@/types/payment/payment.types";
 
 interface BillSummaryProps {
 	bill: BillSummaryType;

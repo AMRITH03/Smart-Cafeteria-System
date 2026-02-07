@@ -1,4 +1,4 @@
-import { useTransactions } from "../hooks/useTransactions";
+import { useTransactions } from "@/hooks/transactions/useTransactions";
 import { TransactionCard } from "./TransactionCard";
 import { TransactionCardSkeleton } from "./TransactionCardSkeleton";
 

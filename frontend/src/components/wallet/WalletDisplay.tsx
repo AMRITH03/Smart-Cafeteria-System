@@ -1,6 +1,6 @@
 import React from "react";
 import { Wallet as WalletIcon, Plus, History } from "lucide-react";
-import { Transaction } from "../types/wallet.types";
+import { Transaction } from "@/types/wallet/wallet.types";
 
 interface Props {
 	balance: number;

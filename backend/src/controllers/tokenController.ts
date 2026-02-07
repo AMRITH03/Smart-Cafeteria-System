@@ -470,9 +470,9 @@ export const closeCounterController = async (req: Request, res: Response): Promi
 		}
 
 		const counterId = parseInt(paramValidation.data.counterId, 10);
-		const reason = req.body.reason as string | undefined;
+		// const reason = req.body.reason as string | undefined;
 
-		const result = await closeCounterAndReassign(counterId, reason);
+		const result = await closeCounterAndReassign(counterId);
 
 		if (!result.success) {
 			res.status(result.statusCode).json({

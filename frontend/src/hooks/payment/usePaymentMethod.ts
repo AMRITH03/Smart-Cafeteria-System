@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PaymentMethod } from "../types/payment.types";
+import { PaymentMethod } from "@/types/payment/payment.types";
 
 /**
  * UI hook to manage payment method selection
