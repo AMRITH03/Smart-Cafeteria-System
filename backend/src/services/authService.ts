@@ -6,6 +6,7 @@ import type {
 	UpdateProfileRequest,
 	UserProfile,
 } from "../interfaces/user.types";
+import { getCurrentISOStringIST } from "../utils/dateUtils";
 
 export const createUser = async (
 	validatedUser: RegisterUserRequest
@@ -187,7 +188,7 @@ export const updateUserProfile = async (
 		.from("users")
 		.update({
 			...updateData,
-			updated_at: new Date().toISOString(),
+			updated_at: getCurrentISOStringIST(),
 		})
 		.eq("id", userId)
 		.select(

@@ -16,6 +16,12 @@ import type {
 	UpdateBookingRequest,
 } from "../interfaces/booking.types";
 import { type ServiceResponse, STATUS } from "../interfaces/status.types";
+import {
+	getCurrentDateStringIST,
+	createISTISOString,
+	formatDateOnly,
+	getCurrentDateIST,
+} from "../utils/dateUtils";
 
 // Helper function to generate booking reference
 export const generateBookingReference = (): string => {
@@ -26,8 +32,7 @@ export const generateBookingReference = (): string => {
 
 // Helper function to calculate payment deadline (e.g., 30 minutes before slot starts)
 const calculatePaymentDeadline = (slotDate: string, paymentWindowEnd: string): string => {
-	const deadline = new Date(`${slotDate}T${paymentWindowEnd}`);
-	return deadline.toISOString();
+	return createISTISOString(slotDate, paymentWindowEnd);
 };
 
 /**
@@ -48,8 +53,8 @@ export const getAvailableSlots = async (
 		if (date) {
 			query = query.eq("slot_date", date);
 		} else {
-			// Default to today and future dates
-			const today = new Date().toISOString().split("T")[0];
+			// Default to today and future dates (IST)
+			const today = getCurrentDateStringIST();
 			query = query.gte("slot_date", today);
 		}
 
@@ -1239,12 +1244,12 @@ export const getSlotRecommendations = async (
 		}
 
 		// Get historical booking data for demand prediction
-		// Calculate average bookings for similar slots in past weeks
+		// Calculate average bookings for similar slots in past weeks (IST)
 		const pastDates: string[] = [];
 		for (let i = 1; i <= 4; i++) {
 			const pastDate = new Date(date);
 			pastDate.setDate(pastDate.getDate() - i * 7);
-			pastDates.push(pastDate.toISOString().split("T")[0]);
+			pastDates.push(formatDateOnly(pastDate));
 		}
 
 		const recommendations: SlotRecommendation[] = [];

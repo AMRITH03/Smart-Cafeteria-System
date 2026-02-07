@@ -1,5 +1,5 @@
-import { EditProfileFormContainer } from "@/features/profile/components/EditProfileFormContainer";
+import { EditProfileFormContainer } from "@/components/profile/EditProfileFormContainer";
 
 export default function EditProfilePage() {
-    return <EditProfileFormContainer />;
+	return <EditProfileFormContainer />;
 }

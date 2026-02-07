@@ -26,6 +26,18 @@ import type {
 } from "../interfaces/payment.types";
 import { type ServiceResponse, STATUS } from "../interfaces/status.types";
 import { generateBookingReference } from "./bookingService";
+import {
+	getCurrentISOStringIST,
+	getCurrentDateStringIST,
+	getCurrentTimeStringIST,
+	createISTDate,
+	createISTISOString,
+	getNowInIST,
+	isWithinTimeWindow,
+	getTimeDifferenceMs,
+	formatToISTISOString,
+	convertUTCToIST,
+} from "../utils/dateUtils";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
@@ -37,7 +49,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 // ============================================
 
 /**
- * Check if payment window is active for a booking
+ * Check if payment window is active for a booking (IST)
  */
 const isPaymentWindowActive = (booking: any): boolean => {
 	const now = new Date();
@@ -45,8 +57,8 @@ const isPaymentWindowActive = (booking: any): boolean => {
 	const paymentWindowStart = booking.meal_slots.payment_window_start;
 	const paymentWindowEnd = booking.meal_slots.payment_window_end;
 
-	const windowStart = new Date(`${slotDate}T${paymentWindowStart}`);
-	const windowEnd = new Date(`${slotDate}T${paymentWindowEnd}`);
+	const windowStart = createISTDate(slotDate, paymentWindowStart);
+	const windowEnd = createISTDate(slotDate, paymentWindowEnd);
 
 	// Also check booking-specific deadline if it was extended
 	const bookingDeadline = new Date(booking.payment_deadline);
@@ -56,12 +68,12 @@ const isPaymentWindowActive = (booking: any): boolean => {
 };
 
 /**
- * Calculate time remaining in payment window
+ * Calculate time remaining in payment window (IST)
  */
 const getTimeRemaining = (booking: any): number => {
 	const now = new Date();
 	const bookingDeadline = new Date(booking.payment_deadline);
-	const diffMs = bookingDeadline.getTime() - now.getTime();
+	const diffMs = getTimeDifferenceMs(bookingDeadline, now);
 	return Math.max(0, Math.floor(diffMs / 60000)); // Convert to minutes
 };
 
@@ -188,9 +200,7 @@ export const getPaymentWindowStatus = async (
 		}
 
 		const slotDate = booking.meal_slots.slot_date;
-		const windowStart = new Date(
-			`${slotDate}T${booking.meal_slots.payment_window_start}`
-		).toISOString();
+		const windowStart = createISTISOString(slotDate, booking.meal_slots.payment_window_start);
 		const windowEnd = booking.payment_deadline;
 
 		const isActive = isPaymentWindowActive(booking);
@@ -254,14 +264,15 @@ export const extendPaymentWindow = async (
 			};
 		}
 
-		// Calculate new deadline
+		// Calculate new deadline (IST)
 		const currentDeadline = new Date(booking.payment_deadline);
 		const newDeadline = new Date(currentDeadline.getTime() + extensionMinutes * 60000);
+		const newDeadlineIST = formatToISTISOString(convertUTCToIST(newDeadline));
 
 		// Update booking deadline
 		const { error: updateError } = await service_client
 			.from("bookings")
-			.update({ payment_deadline: newDeadline.toISOString() })
+			.update({ payment_deadline: newDeadlineIST })
 			.eq("booking_id", bookingId);
 
 		if (updateError) {
@@ -279,7 +290,7 @@ export const extendPaymentWindow = async (
 			target_entity: "bookings",
 			target_id: bookingId.toString(),
 			old_value: { payment_deadline: booking.payment_deadline },
-			new_value: { payment_deadline: newDeadline.toISOString() },
+			new_value: { payment_deadline: newDeadlineIST },
 			description: `Extended payment window by ${extensionMinutes} minutes`,
 		});
 
@@ -287,7 +298,7 @@ export const extendPaymentWindow = async (
 			success: true,
 			data: {
 				booking_id: bookingId,
-				new_deadline: newDeadline.toISOString(),
+				new_deadline: newDeadlineIST,
 				extended_by_minutes: extensionMinutes,
 				extended_by_admin_id: adminId,
 			},
@@ -670,7 +681,7 @@ export const settleBill = async (
 				wallet_balance_used: walletBalance,
 				remaining_amount: 0,
 				booking_status: "confirmed",
-				settlement_time: new Date().toISOString(),
+				settlement_time: getCurrentISOStringIST(),
 			},
 			statusCode: STATUS.SUCCESS,
 		};
@@ -1207,7 +1218,7 @@ export const processNoShows = async (slotId: number): Promise<ServiceResponse<No
 				slot_id: slotId,
 				slot_name: slot.slot_name,
 				group_size: tokenData.bookings.group_size,
-				marked_at: new Date().toISOString(),
+				marked_at: getCurrentISOStringIST(),
 			});
 		}
 
@@ -1215,7 +1226,7 @@ export const processNoShows = async (slotId: number): Promise<ServiceResponse<No
 		// Part 2: Process unpaid bookings (no token generated, payment window expired)
 		// These are bookings that were never paid for
 		// ============================================
-		const now = new Date().toISOString();
+		const now = getCurrentISOStringIST();
 		const { data: unpaidBookings, error: unpaidError } = await service_client
 			.from("bookings")
 			.select(`
@@ -1307,7 +1318,7 @@ export const processNoShows = async (slotId: number): Promise<ServiceResponse<No
 					slot_id: slotId,
 					slot_name: slot.slot_name,
 					group_size: booking.group_size,
-					marked_at: new Date().toISOString(),
+					marked_at: getCurrentISOStringIST(),
 				});
 			}
 		}
@@ -1359,12 +1370,15 @@ const updateUserNoShowRestriction = async (userId: string): Promise<void> => {
 
 		// If no-show count exceeds threshold, escalate restriction
 		if (newNoShowCount >= 3) {
+			// Calculate 7 days from now in IST
+			const endDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+			const endDateIST = formatToISTISOString(convertUTCToIST(endDate));
 			await service_client.from("user_restrictions").insert({
 				user_id: userId,
 				type: "temporary_ban",
 				reason: `Multiple no-shows (${newNoShowCount} times)`,
 				no_show_count: newNoShowCount,
-				end_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
+				end_date: endDateIST, // 7 days
 			});
 		}
 	} else {
@@ -1393,10 +1407,10 @@ export const getWalkInAvailableMeals = async (
 	try {
 		let targetSlotId = slotId;
 
-		// If no slot specified, get current active slot
+		// If no slot specified, get current active slot (IST)
 		if (!targetSlotId) {
-			const today = date || new Date().toISOString().split("T")[0];
-			const currentTime = new Date().toTimeString().split(" ")[0];
+			const today = date || getCurrentDateStringIST();
+			const currentTime = getCurrentTimeStringIST();
 
 			const { data: activeSlot } = await service_client
 				.from("meal_slots")
@@ -1638,8 +1652,8 @@ export const assignWalkInMeal = async (
 			walletBalance = amount || 0;
 		}
 
-		// Payment deadline is end of the slot
-		const paymentDeadline = new Date(`${slot.slot_date}T${slot.end_time}`).toISOString();
+		// Payment deadline is end of the slot (IST)
+		const paymentDeadline = createISTISOString(slot.slot_date, slot.end_time);
 
 		// Generate booking reference
 		const bookingReference = generateBookingReference();
@@ -2003,7 +2017,7 @@ export const processExpiredPaymentWindows = async (): Promise<
 	ServiceResponse<AutoCancellationResult[]>
 > => {
 	try {
-		const now = new Date().toISOString();
+		const now = getCurrentISOStringIST();
 
 		// Find all pending_payment bookings with expired payment deadline
 		const { data: expiredBookings, error: bookingsError } = await service_client
@@ -2117,9 +2131,9 @@ export const detectLeftoverFood = async (
 			};
 		}
 
-		// Check if we're in the last 5 minutes of the slot
+		// Check if we're in the last 5 minutes of the slot (IST)
 		const now = new Date();
-		const slotEnd = new Date(`${slot.slot_date}T${slot.end_time}`);
+		const slotEnd = createISTDate(slot.slot_date, slot.end_time);
 		const fiveMinutesBefore = new Date(slotEnd.getTime() - 5 * 60 * 1000);
 
 		const isInLastFiveMinutes = now >= fiveMinutesBefore && now <= slotEnd;
@@ -2205,9 +2219,9 @@ export const transferLeftoverToNextSlot = async (
 			};
 		}
 
-		// Verify to_slot is after from_slot
-		const fromEnd = new Date(`${fromSlot.slot_date}T${fromSlot.end_time}`);
-		const toStart = new Date(`${toSlot.slot_date}T${toSlot.start_time}`);
+		// Verify to_slot is after from_slot (IST)
+		const fromEnd = createISTDate(fromSlot.slot_date, fromSlot.end_time);
+		const toStart = createISTDate(toSlot.slot_date, toSlot.start_time);
 
 		if (toStart <= fromEnd) {
 			return {
@@ -2287,7 +2301,7 @@ export const transferLeftoverToNextSlot = async (
 				to_slot_id,
 				menu_item_id: item.menu_item_id,
 				quantity: item.quantity,
-				transferred_at: new Date().toISOString(),
+				transferred_at: getCurrentISOStringIST(),
 			});
 		}
 

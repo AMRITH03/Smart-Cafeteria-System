@@ -1,15 +1,69 @@
-export type MealType = 'breakfast' | 'lunch' | 'snacks' | 'dinner';
+export type MealType = "breakfast" | "lunch" | "snack" | "dinner";
+export type BookingStatus = "COMPLETED" | "CONFIRMED" | "CANCELLED" | "PENDING";
+
+// Slot data from the backend GET /api/bookings/slots response
+export interface SlotData {
+	slot_id: number;
+	slot_name: string;
+	slot_date: string;
+	start_time: string;
+	end_time: string;
+	max_capacity: number;
+	current_occupancy: number;
+	is_active: boolean;
+	payment_window_start: string;
+	payment_window_end: string;
+	created_at: string;
+	remaining_capacity: number;
+	is_full: boolean;
+	occupancy_percentage: number;
+}
+
+export interface SlotsResponse {
+	success: boolean;
+	message: string;
+	data: SlotData[];
+}
+
+// Meal category configuration for the grid
+export interface MealCategoryConfig {
+	id: MealType;
+	title: string;
+	caption: string;
+	image: string;
+	href: string;
+}
 
 export interface Slot {
-    id: string;
-    startTime: string;
-    endTime: string;
-    availableSeats: number;
-    totalSeats: number;
+	id: string;
+	startTime: string;
+	endTime: string;
+	availableSeats: number;
+	totalSeats: number;
 }
 
 export interface BookingSession {
-    mealType: MealType | null;
-    slotId: string | null;
-    members: number;
+	mealType: MealType | null;
+	slotId: string | null;
+	members: number;
+}
+
+// Booking item for cart/order
+export interface BookingItem {
+	id: string;
+	name: string;
+	quantity: number;
+	price: number;
+}
+
+// Full booking object
+export interface Booking {
+	id: string;
+	status: BookingStatus;
+	items: BookingItem[];
+	totalAmount: number;
+	date: string;
+	slot: string;
+	mealType: MealType;
+	members: number;
 }

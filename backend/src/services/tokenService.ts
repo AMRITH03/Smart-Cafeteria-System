@@ -14,6 +14,12 @@ import type {
 	TokenWithDetails,
 } from "../interfaces/token.types";
 import { type ServiceResponse, STATUS } from "../interfaces/status.types";
+import {
+	getCurrentDateStringIST,
+	getCurrentTimeStringIST,
+	getCurrentISOStringIST,
+	createISTDate,
+} from "../utils/dateUtils";
 
 // ============================================
 // Helper Functions
@@ -173,8 +179,8 @@ export const generateToken = async (
 			};
 		}
 
-		// Get all tokens for this slot to determine sequence
-		const today = new Date().toISOString().split("T")[0];
+		// Get all tokens for this slot to determine sequence (IST)
+		const today = getCurrentDateStringIST();
 		const { data: slotTokens, error: tokenError } = await service_client
 			.from("tokens")
 			.select(`
@@ -524,14 +530,14 @@ export const activateToken = async (
 			};
 		}
 
-		// Check if we're within the slot time window
+		// Check if we're within the slot time window (IST)
 		const now = new Date();
 		const slotDate = tokenData.bookings.meal_slots.slot_date;
 		const slotStartTime = tokenData.bookings.meal_slots.start_time;
 		const slotEndTime = tokenData.bookings.meal_slots.end_time;
 
-		const slotStart = new Date(`${slotDate}T${slotStartTime}`);
-		const slotEnd = new Date(`${slotDate}T${slotEndTime}`);
+		const slotStart = createISTDate(slotDate, slotStartTime);
+		const slotEnd = createISTDate(slotDate, slotEndTime);
 		console.log("slot start time : ", slotStartTime);
 		console.log("slot end time : ", slotEndTime);
 		console.log("now", now);
@@ -577,8 +583,8 @@ export const activateToken = async (
 			};
 		}
 
-		// Update token with counter assignment and activation
-		const activatedAt = new Date().toISOString();
+		// Update token with counter assignment and activation (IST)
+		const activatedAt = getCurrentISOStringIST();
 		const { data: updatedToken, error: updateError } = await auth_supa
 			.from("tokens")
 			.update({
@@ -641,7 +647,7 @@ export const getQueueProgress = async (
 
 		if (!slotFilter && date) {
 			// Get current active slot for the date
-			const currentTime = new Date().toTimeString().split(" ")[0];
+			const currentTime = getCurrentTimeStringIST();
 			const { data: activeSlot } = await service_client
 				.from("meal_slots")
 				.select("slot_id")
@@ -655,9 +661,9 @@ export const getQueueProgress = async (
 		}
 
 		if (!slotFilter) {
-			// Get today's date and find active slot
-			const today = new Date().toISOString().split("T")[0];
-			const currentTime = new Date().toTimeString().split(" ")[0];
+			// Get today's date and find active slot (IST)
+			const today = getCurrentDateStringIST();
+			const currentTime = getCurrentTimeStringIST();
 
 			const { data: activeSlot } = await service_client
 				.from("meal_slots")
@@ -928,8 +934,8 @@ export const markTokenAsServed = async (tokenId: number): Promise<ServiceRespons
 			};
 		}
 
-		// Update token to served
-		const servedAt = new Date().toISOString();
+		// Update token to served (IST)
+		const servedAt = getCurrentISOStringIST();
 		const { data: updatedToken, error: updateError } = await service_client
 			.from("tokens")
 			.update({
@@ -1037,8 +1043,8 @@ export const getServiceCounters = async (): Promise<ServiceResponse<ServiceCount
  * FR-2.2.12: Update token positions and notify users after reassignment
  */
 export const closeCounterAndReassign = async (
-	counterId: number,
-	reason?: string
+	counterId: number
+	// reason?: string
 ): Promise<ServiceResponse<CounterClosureResponse>> => {
 	try {
 		// Verify counter exists
