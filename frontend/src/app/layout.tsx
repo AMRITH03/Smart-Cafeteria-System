@@ -1,18 +1,18 @@
-import '../styles/globals.css';
+import "../styles/globals.css";
 
-import type { ReactNode } from 'react';
-import { ReactQueryProvider } from '@/lib/react-query-provider';
-import { Navbar } from '@/components/navbar/Navbar';
+import type { ReactNode } from "react";
+import { ReactQueryProvider } from "@/lib/react-query-provider";
+import { Navbar } from "@/components/navbar/Navbar";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return (
-    <html lang="en">
-      <body>
-        <ReactQueryProvider>
-          <Navbar />
-          {children}
-        </ReactQueryProvider>
-      </body>
-    </html>
-  );
+	return (
+		<html lang="en">
+			<body>
+				<ReactQueryProvider>
+					<Navbar />
+					<main className="pt-24">{children}</main>
+				</ReactQueryProvider>
+			</body>
+		</html>
+	);
 }

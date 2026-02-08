@@ -1,5 +1,7 @@
+"use client";
+
 import Image from "next/image";
-import { useMemo } from "react";
+import { useState, useEffect } from "react";
 
 const ICONS = [
 	"/assets/hero-icons/food-1.png",
@@ -28,10 +30,21 @@ const BASE_POSITIONS = [
 	{ top: 88, left: 60 },
 ];
 
+type IconData = {
+	src: string;
+	size: number;
+	top: number;
+	left: number;
+	duration: number;
+	delay: number;
+};
+
 export function FloatingFoodIcons() {
-	// 🔒 Lock randomness ONCE
-	const icons = useMemo(() => {
-		return ICONS.map((src, index) => {
+	const [icons, setIcons] = useState<IconData[]>([]);
+
+	// Generate random values only on client-side to avoid hydration mismatch
+	useEffect(() => {
+		const generatedIcons = ICONS.map((src, index) => {
 			const base = BASE_POSITIONS[index % BASE_POSITIONS.length];
 
 			return {
@@ -43,7 +56,13 @@ export function FloatingFoodIcons() {
 				delay: Math.random() * 6,
 			};
 		});
+		setIcons(generatedIcons);
 	}, []);
+
+	// Don't render during SSR or before client-side values are ready
+	if (icons.length === 0) {
+		return <div className="absolute inset-0 overflow-hidden pointer-events-none" />;
+	}
 
 	return (
 		<div className="absolute inset-0 overflow-hidden pointer-events-none">

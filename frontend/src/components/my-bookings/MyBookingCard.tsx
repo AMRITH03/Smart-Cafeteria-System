@@ -181,9 +181,17 @@ export function MyBookingCard({
 	const BtnIcon = BUTTON_ICONS[btn.icon];
 
 	return (
-		<button
-			type="button"
+		// biome-ignore lint/a11y/useSemanticElements: Using div with role="button" is intentional - we need nested interactive buttons inside
+		<div
+			role="button"
+			tabIndex={0}
 			onClick={() => router.push(`/my-bookings/${bookingId}`)}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					router.push(`/my-bookings/${bookingId}`);
+				}
+			}}
 			className="group flex items-stretch rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all overflow-hidden cursor-pointer w-full text-left"
 		>
 			{/* Left: content area */}
@@ -228,45 +236,52 @@ export function MyBookingCard({
 				</div>
 			</div>
 
-			{/* Right: Action button + hover arrow — vertically centered */}
-			<div className="flex items-center justify-end gap-2 px-3 sm:px-5 border-l bg-gray-50/60 w-[220px] sm:w-[260px] shrink-0">
-				{/* View details arrow — slides in from right on hover */}
-				<div className="flex items-center gap-1 overflow-hidden">
-					<span className="text-xs font-semibold text-gray-400 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 whitespace-nowrap">
-						View Details
-					</span>
-					<ArrowRight
-						size={16}
-						className="text-gray-400 opacity-0 translate-x-3 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
-					/>
+			{/* Right: Action button + hover overlay — vertically centered */}
+			<div className="relative flex items-center justify-center px-3 sm:px-5 border-l bg-gray-50/60 w-[220px] sm:w-[260px] shrink-0 overflow-hidden transition-all duration-300">
+				{/* Blue overlay that appears on hover */}
+				<div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+				{/* View Details text - centered, visible on hover */}
+				<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-10">
+					<div className="flex items-center gap-2 text-white font-bold">
+						<span className="text-sm sm:text-base">View Details</span>
+						<ArrowRight
+							size={20}
+							className="transition-transform duration-300 group-hover:translate-x-1"
+						/>
+					</div>
 				</div>
-				<button
-					type="button"
-					disabled={btn.disabled || isSettling}
-					onClick={(e) => {
-						e.stopPropagation();
-						if (btn.disabled || isSettling) return;
-						if (btn.action === "pay") {
-							onPayBill();
-						} else if (btn.action === "wallet") {
-							onAddMoney();
-						}
-					}}
-					className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${BUTTON_VARIANT_STYLES[btn.variant]}`}
-				>
-					{isSettling ? (
-						<span className="flex items-center gap-1.5">
-							<span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-							Settling...
-						</span>
-					) : (
-						<>
-							<BtnIcon size={16} />
-							{btn.label}
-						</>
-					)}
-				</button>
+
+				{/* Action button - hidden on hover */}
+				<div className="relative z-0 group-hover:opacity-0 transition-opacity duration-300">
+					<button
+						type="button"
+						disabled={btn.disabled || isSettling}
+						onClick={(e) => {
+							e.stopPropagation();
+							if (btn.disabled || isSettling) return;
+							if (btn.action === "pay") {
+								onPayBill();
+							} else if (btn.action === "wallet") {
+								onAddMoney();
+							}
+						}}
+						className={`flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-bold whitespace-nowrap transition-all ${BUTTON_VARIANT_STYLES[btn.variant]}`}
+					>
+						{isSettling ? (
+							<span className="flex items-center gap-1.5">
+								<span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+								Settling...
+							</span>
+						) : (
+							<>
+								<BtnIcon size={16} />
+								{btn.label}
+							</>
+						)}
+					</button>
+				</div>
 			</div>
-		</button>
+		</div>
 	);
 }
