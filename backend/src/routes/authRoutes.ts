@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
 	forgotPassword,
 	getProfile,
+	getUserByIdController,
 	logoutUser,
 	registerUser,
 	signInUser,
@@ -21,5 +22,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", updatePassword);
 router.get("/profile", requireAuth, getProfile);
 router.put("/profile", requireAuth, updateProfile);
+router.get("/user/:userId", requireAuth, getUserByIdController);
 
 export default router;

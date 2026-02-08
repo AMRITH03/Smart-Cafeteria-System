@@ -104,6 +104,21 @@ export interface BillSettlementResponse {
 }
 
 // ============================================
+// Pay Bill Types (Personal Wallet Payment)
+// ============================================
+export interface PayBillResponse {
+	booking_id: number;
+	booking_reference: string;
+	total_amount: number;
+	amount_paid: number;
+	new_wallet_balance: number;
+	booking_status: string;
+	payment_id: string;
+	transaction_id: string;
+	paid_at: string;
+}
+
+// ============================================
 // No-Show Types
 // ============================================
 export interface NoShowToken {

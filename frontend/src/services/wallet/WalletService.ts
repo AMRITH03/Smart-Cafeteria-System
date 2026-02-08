@@ -5,6 +5,7 @@ import type {
 	CreateCheckoutSessionResponse,
 	CheckoutSessionStatusResponse,
 	ConfirmRechargeResponse,
+	PayBillResponse,
 } from "../../types/wallet/wallet.types";
 
 export const WalletService = {
@@ -43,4 +44,10 @@ export const WalletService = {
 			booking_id: Number(bookingId),
 			amount,
 		}),
+
+	/** Settle the bill for a booking using its accumulated wallet balance */
+	settleBill: (bookingId: number): Promise<{ success: boolean; message: string; data: unknown }> =>
+		apiPost<{ success: boolean; message: string; data: unknown }>(
+			`/api/payments/settle/${bookingId}`
+		),
 };

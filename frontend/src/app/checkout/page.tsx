@@ -15,15 +15,30 @@ export default function CheckoutPage() {
 	const { token } = useAuthStore();
 	const { slotId, groupMembers, getSelectedSlot } = useBookingStore();
 
-	// Wait for Zustand persist hydration before rendering dynamic values
+	// Check if this is a booking edit flow
+	const [editBookingId, setEditBookingId] = useState<number | null>(null);
 	const [hydrated, setHydrated] = useState(false);
+
 	useEffect(() => {
 		setHydrated(true);
+		try {
+			const editContextStr = sessionStorage.getItem("booking_edit_context");
+			if (editContextStr) {
+				const editContext = JSON.parse(editContextStr);
+				if (editContext.bookingId) {
+					setEditBookingId(editContext.bookingId);
+				}
+			}
+		} catch {
+			// ignore
+		}
 	}, []);
 
 	if (!hydrated) {
 		return <div className="p-8 text-center text-gray-500">Loading checkout...</div>;
 	}
+
+	const isEditMode = editBookingId !== null && editBookingId > 0;
 
 	const handleCheckout = () => {
 		if (!token) {
@@ -32,13 +47,19 @@ export default function CheckoutPage() {
 			return;
 		}
 
-		if (!slotId) {
-			toast.error("No slot selected. Please go back and select a slot.");
+		if (items.length === 0) {
+			toast.error("Your cart is empty.");
 			return;
 		}
 
-		if (items.length === 0) {
-			toast.error("Your cart is empty.");
+		if (isEditMode) {
+			// Redirect to booking update confirmation
+			router.replace(`/booking-update-confirmation?bookingId=${editBookingId}`);
+			return;
+		}
+
+		if (!slotId) {
+			toast.error("No slot selected. Please go back and select a slot.");
 			return;
 		}
 
@@ -53,7 +74,6 @@ export default function CheckoutPage() {
 			return;
 		}
 
-		// Replace history so back button won't return to checkout after booking
 		router.replace("/booking-confirmation");
 	};
 
@@ -67,7 +87,14 @@ export default function CheckoutPage() {
 				>
 					<ArrowLeft size={20} />
 				</button>
-				<h2 className="text-2xl font-bold text-gray-900">Checkout</h2>
+				<h2 className="text-2xl font-bold text-gray-900">
+					{isEditMode ? "Update Order" : "Checkout"}
+				</h2>
+				{isEditMode && (
+					<span className="ml-auto px-3 py-1 rounded-full bg-amber-50 text-amber-700 text-xs font-bold border border-amber-200">
+						Editing Booking
+					</span>
+				)}
 			</div>
 
 			{/* Order Summary */}
@@ -120,15 +147,15 @@ export default function CheckoutPage() {
 				</div>
 			</div>
 
-			{/* Add Group Members */}
-			<GroupMemberSearch />
+			{/* Add Group Members (hidden in edit mode) */}
+			{!isEditMode && <GroupMemberSearch />}
 
 			{/* Confirm Button */}
 			<button
 				onClick={handleCheckout}
 				className="w-full rounded-2xl bg-blue-600 p-5 text-xl font-black text-white shadow-xl shadow-blue-100 transition-all hover:bg-blue-700 active:scale-[0.98] flex items-center justify-center gap-2"
 			>
-				Confirm Order
+				{isEditMode ? "Update Order" : "Confirm Order"}
 			</button>
 		</div>
 	);

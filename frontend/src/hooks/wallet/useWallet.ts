@@ -77,10 +77,35 @@ export function useContribute() {
 			queryClient.invalidateQueries({ queryKey: ["wallet"] });
 			queryClient.invalidateQueries({ queryKey: ["bookings"] });
 			queryClient.invalidateQueries({ queryKey: ["booking"] });
+			queryClient.invalidateQueries({ queryKey: ["bookingDetail"] });
+			queryClient.invalidateQueries({ queryKey: ["myBookings"] });
 		},
 		onError: (error: unknown) => {
-			const err = error as { response?: { data?: { message?: string } } };
-			toast.error(err?.response?.data?.message || "Contribution failed.");
+			const err = error as { response?: { data?: { message?: string; error?: string } } };
+			toast.error(
+				err?.response?.data?.error || err?.response?.data?.message || "Contribution failed."
+			);
+		},
+	});
+}
+
+/** Settle the bill for a booking using accumulated wallet balance */
+export function useSettleBill() {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: (bookingId: number) => WalletService.settleBill(bookingId),
+		onSuccess: () => {
+			toast.success("Bill settled successfully!");
+			queryClient.invalidateQueries({ queryKey: ["wallet"] });
+			queryClient.invalidateQueries({ queryKey: ["bookingDetail"] });
+			queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+		},
+		onError: (error: unknown) => {
+			const err = error as { response?: { data?: { message?: string; error?: string } } };
+			toast.error(
+				err?.response?.data?.error || err?.response?.data?.message || "Failed to settle bill."
+			);
 		},
 	});
 }

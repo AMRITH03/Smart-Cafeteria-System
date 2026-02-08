@@ -69,35 +69,26 @@ export function ProfileDropdown() {
 						My Profile
 					</Link>
 
-					<Link
-						href="/profile/edit"
-						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-						onClick={() => setIsOpen(false)}
-					>
-						<User size={18} className="text-gray-400" />
-						Edit Profile
-					</Link>
-
 					<div className="px-3 py-2 border-b my-1 mt-2">
 						<p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Activity</p>
 					</div>
 
 					<Link
-						href="/profile#bookings"
+						href="/my-bookings"
 						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
 						onClick={() => setIsOpen(false)}
 					>
 						<BookCheck size={18} />
-						Bookings
+						My Bookings
 					</Link>
 
 					<Link
-						href="/profile#transactions"
+						href="/transaction-history"
 						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
 						onClick={() => setIsOpen(false)}
 					>
 						<ReceiptText size={18} />
-						Transactions
+						Transaction History
 					</Link>
 
 					<div className="my-2 border-t" />

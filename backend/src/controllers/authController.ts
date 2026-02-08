@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { STATUS } from "../interfaces/status.types";
 import {
 	createUser,
+	getUserById,
 	getUserProfile,
 	logOut,
 	requestPasswordReset,
@@ -234,6 +235,41 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 		});
 	} catch (error) {
 		console.error("Update Profile Error:", error);
+		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
+	}
+};
+
+/**
+ * GET /auth/user/:userId
+ * Get basic user details by userId (for group member display in booking details)
+ */
+export const getUserByIdController = async (req: Request, res: Response): Promise<void> => {
+	try {
+		if (!req.user) {
+			res.status(STATUS.UNAUTHORIZED).json({ error: "User not authenticated" });
+			return;
+		}
+
+		const userId = req.params.userId as string;
+
+		if (!userId) {
+			res.status(STATUS.BADREQUEST).json({ error: "User ID is required" });
+			return;
+		}
+
+		const result = await getUserById(userId);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({ success: false, error: result.error });
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			data: result.data,
+		});
+	} catch (error) {
+		console.error("Get User By ID Error:", error);
 		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
 	}
 };

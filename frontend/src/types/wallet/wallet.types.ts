@@ -77,3 +77,19 @@ export interface WalletTransactionsResponse {
 		total_count: number;
 	};
 }
+
+export interface PayBillResponse {
+	success: boolean;
+	message: string;
+	data: {
+		booking_id: number;
+		booking_reference: string;
+		total_amount: number;
+		amount_paid: number;
+		new_wallet_balance: number;
+		booking_status: string;
+		payment_id: string;
+		transaction_id: string;
+		paid_at: string;
+	};
+}

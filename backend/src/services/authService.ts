@@ -221,3 +221,44 @@ export const updateUserProfile = async (
 		data: data as UserProfile,
 	};
 };
+
+/**
+ * Get basic user details by userId (for group member display)
+ */
+export const getUserById = async (
+	userId: string
+): Promise<
+	ServiceResponse<{
+		id: string;
+		email: string;
+		first_name: string;
+		last_name: string;
+		college_id: string;
+	}>
+> => {
+	const { data, error } = await service_client
+		.from("users")
+		.select("id, email, first_name, last_name, college_id")
+		.eq("id", userId)
+		.single();
+
+	if (error) {
+		return {
+			success: false,
+			error: error.message,
+			statusCode: STATUS.NOTFOUND,
+		};
+	}
+
+	return {
+		success: true,
+		statusCode: STATUS.SUCCESS,
+		data: data as {
+			id: string;
+			email: string;
+			first_name: string;
+			last_name: string;
+			college_id: string;
+		},
+	};
+};

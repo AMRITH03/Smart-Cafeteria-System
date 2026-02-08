@@ -14,6 +14,7 @@ import type {
 	NoShowFrequencyReport,
 	NoShowStats,
 	NoShowToken,
+	PayBillResponse,
 	PaymentConfirmationResponse,
 	PaymentIntentResponse,
 	PaymentWindow,
@@ -361,16 +362,6 @@ export const contributeToBookingWallet = async (
 			};
 		}
 
-		// FR-2.3.9: Check if payment window is active
-		if (!isPaymentWindowActive(booking)) {
-			return {
-				success: false,
-				error:
-					"Payment window is not active. Contributions can only be made within the payment window.",
-				statusCode: STATUS.BADREQUEST,
-			};
-		}
-
 		// Check booking status
 		if (booking.booking_status !== "pending_payment") {
 			return {
@@ -463,11 +454,6 @@ export const contributeToBookingWallet = async (
 		const updateData: any = {
 			wallet_balance: newWalletBalance,
 		};
-
-		// If fully paid, update booking status
-		if (isFullyPaid) {
-			updateData.booking_status = "confirmed";
-		}
 
 		const { error: updateError } = await service_client
 			.from("bookings")
@@ -693,6 +679,10 @@ export const settleBill = async (
 		};
 	}
 };
+
+// ============================================
+// Pay Bill Service (Personal Wallet Payment)
+// ============================================
 
 // ============================================
 // Stripe Payment Services

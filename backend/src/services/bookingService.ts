@@ -1045,6 +1045,14 @@ export const cancelBooking = async (
 			};
 		}
 
+		if (booking.booking_status === "confirmed") {
+			return {
+				success: false,
+				error: "Cannot cancel a confirmed booking",
+				statusCode: STATUS.BADREQUEST,
+			};
+		}
+
 		// Insert cancellation reason as feedback if token exists and reason is provided
 		//LOOK INTO THIS LATER
 		if (reason) {
