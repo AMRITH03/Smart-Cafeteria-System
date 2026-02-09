@@ -1,911 +1,558 @@
 "use client";
 
-import { useState, KeyboardEvent } from "react";
-import Navbar from "@/src/components/Navigation/Navbar";
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useIngredients, useStockAlerts } from "@/hooks/staff/useInventory";
+import type { Ingredient } from "@/services/staff/InventoryService";
 import {
-	Search,
-	Filter,
-	Plus,
-	Download,
-	Printer,
-	ChevronDown,
-	X,
-	Edit2,
-	Trash2,
+	ArrowLeft,
 	Package,
+	Search,
+	AlertTriangle,
+	CheckCircle2,
+	XCircle,
+	TrendingDown,
+	Plus,
+	RefreshCw,
+	ChevronDown,
+	ChevronUp,
 } from "lucide-react";
-import styles from "./page.module.css";
 
-interface InventoryItem {
-	id: string;
-	name: string;
-	category: string;
-	quantity: number;
-	unit: string;
-	reorderLevel: number;
-	lastUpdated: string;
-	location?: string;
-	supplier?: string;
+// Mock data for development (remove when backend is ready)
+const MOCK_INGREDIENTS: Ingredient[] = [
+	{
+		ingredient_id: 1,
+		ingredient_name: "Rice (Basmati)",
+		unit_of_measurement: "kg",
+		current_quantity: 150,
+		minimum_threshold: 50,
+		unit_cost: 65,
+		supplier: "Metro Wholesale",
+		last_restocked: "2026-02-08T10:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-08T10:00:00Z",
+	},
+	{
+		ingredient_id: 2,
+		ingredient_name: "Cooking Oil",
+		unit_of_measurement: "L",
+		current_quantity: 25,
+		minimum_threshold: 30,
+		unit_cost: 120,
+		supplier: "Fortune Foods",
+		last_restocked: "2026-02-05T10:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-05T10:00:00Z",
+	},
+	{
+		ingredient_id: 3,
+		ingredient_name: "Onions",
+		unit_of_measurement: "kg",
+		current_quantity: 80,
+		minimum_threshold: 40,
+		unit_cost: 35,
+		supplier: "Local Vendor",
+		last_restocked: "2026-02-09T06:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-09T06:00:00Z",
+	},
+	{
+		ingredient_id: 4,
+		ingredient_name: "Chicken",
+		unit_of_measurement: "kg",
+		current_quantity: 5,
+		minimum_threshold: 20,
+		unit_cost: 180,
+		supplier: "Fresh Meat Co.",
+		last_restocked: "2026-02-07T08:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-07T08:00:00Z",
+	},
+	{
+		ingredient_id: 5,
+		ingredient_name: "Tomatoes",
+		unit_of_measurement: "kg",
+		current_quantity: 45,
+		minimum_threshold: 25,
+		unit_cost: 40,
+		supplier: "Local Vendor",
+		last_restocked: "2026-02-09T06:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-09T06:00:00Z",
+	},
+	{
+		ingredient_id: 6,
+		ingredient_name: "Salt",
+		unit_of_measurement: "kg",
+		current_quantity: 30,
+		minimum_threshold: 10,
+		unit_cost: 20,
+		supplier: "Tata Salt",
+		last_restocked: "2026-01-20T10:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-01-20T10:00:00Z",
+	},
+	{
+		ingredient_id: 7,
+		ingredient_name: "Milk",
+		unit_of_measurement: "L",
+		current_quantity: 0,
+		minimum_threshold: 50,
+		unit_cost: 55,
+		supplier: "Amul Dairy",
+		last_restocked: "2026-02-08T06:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-08T06:00:00Z",
+	},
+	{
+		ingredient_id: 8,
+		ingredient_name: "Wheat Flour",
+		unit_of_measurement: "kg",
+		current_quantity: 200,
+		minimum_threshold: 75,
+		unit_cost: 45,
+		supplier: "Aashirvaad",
+		last_restocked: "2026-02-06T10:00:00Z",
+		created_at: "2026-01-01T00:00:00Z",
+		updated_at: "2026-02-06T10:00:00Z",
+	},
+];
+
+// Stock status helper
+const getStockStatus = (current: number, threshold: number) => {
+	if (current === 0)
+		return { status: "out_of_stock", label: "Out of Stock", color: "text-red-600 bg-red-50" };
+	if (current <= threshold)
+		return { status: "low_stock", label: "Low Stock", color: "text-amber-600 bg-amber-50" };
+	return { status: "in_stock", label: "In Stock", color: "text-emerald-600 bg-emerald-50" };
+};
+
+// Format date helper
+const formatDate = (dateString: string | null) => {
+	if (!dateString) return "—";
+	return new Date(dateString).toLocaleDateString("en-IN", {
+		day: "numeric",
+		month: "short",
+		year: "numeric",
+	});
+};
+
+// Sort types
+type SortField = "ingredient_name" | "current_quantity" | "last_restocked";
+type SortOrder = "asc" | "desc";
+
+// Table Row Component (Dumb)
+interface InventoryRowProps {
+	ingredient: Ingredient;
+	onRestock: (id: number) => void;
 }
 
+function InventoryRow({ ingredient, onRestock }: InventoryRowProps) {
+	const stockStatus = getStockStatus(ingredient.current_quantity, ingredient.minimum_threshold);
+	const stockPercent = Math.min(
+		(ingredient.current_quantity / ingredient.minimum_threshold) * 100,
+		200
+	);
+
+	return (
+		<tr className="border-b border-gray-100 hover:bg-gray-50/50 transition-colors">
+			{/* Name & Supplier */}
+			<td className="px-4 py-4 sm:px-6">
+				<div className="flex items-center gap-3">
+					<div className="hidden sm:flex w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 items-center justify-center text-white font-bold text-sm shrink-0">
+						{ingredient.ingredient_name.charAt(0)}
+					</div>
+					<div className="min-w-0">
+						<p className="font-semibold text-gray-900 truncate">{ingredient.ingredient_name}</p>
+						<p className="text-sm text-gray-500 truncate">{ingredient.supplier || "No supplier"}</p>
+					</div>
+				</div>
+			</td>
+
+			{/* Current Stock */}
+			<td className="px-4 py-4 sm:px-6">
+				<div className="space-y-1">
+					<div className="flex items-baseline gap-1">
+						<span className="font-bold text-gray-900 text-lg">{ingredient.current_quantity}</span>
+						<span className="text-gray-500 text-sm">{ingredient.unit_of_measurement}</span>
+					</div>
+					{/* Mini progress bar */}
+					<div className="w-full max-w-[100px] h-1.5 bg-gray-100 rounded-full overflow-hidden">
+						<div
+							className={`h-full rounded-full transition-all ${
+								stockPercent < 50
+									? "bg-red-500"
+									: stockPercent < 100
+										? "bg-amber-500"
+										: "bg-emerald-500"
+							}`}
+							style={{ width: `${Math.min(stockPercent, 100)}%` }}
+						/>
+					</div>
+				</div>
+			</td>
+
+			{/* Threshold (hidden on mobile) */}
+			<td className="hidden md:table-cell px-4 py-4 sm:px-6">
+				<span className="text-gray-600">
+					{ingredient.minimum_threshold} {ingredient.unit_of_measurement}
+				</span>
+			</td>
+
+			{/* Unit Cost (hidden on mobile) */}
+			<td className="hidden lg:table-cell px-4 py-4 sm:px-6">
+				<span className="text-gray-900 font-medium">
+					{ingredient.unit_cost ? `₹${ingredient.unit_cost}` : "—"}
+				</span>
+			</td>
+
+			{/* Last Restocked (hidden on small screens) */}
+			<td className="hidden xl:table-cell px-4 py-4 sm:px-6">
+				<span className="text-gray-600 text-sm">{formatDate(ingredient.last_restocked)}</span>
+			</td>
+
+			{/* Status */}
+			<td className="px-4 py-4 sm:px-6">
+				<span
+					className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${stockStatus.color}`}
+				>
+					{stockStatus.status === "out_of_stock" && <XCircle size={12} />}
+					{stockStatus.status === "low_stock" && <AlertTriangle size={12} />}
+					{stockStatus.status === "in_stock" && <CheckCircle2 size={12} />}
+					<span className="hidden sm:inline">{stockStatus.label}</span>
+				</span>
+			</td>
+
+			{/* Actions */}
+			<td className="px-4 py-4 sm:px-6">
+				<button
+					onClick={() => onRestock(ingredient.ingredient_id)}
+					className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+				>
+					<RefreshCw size={14} />
+					<span className="hidden sm:inline">Restock</span>
+				</button>
+			</td>
+		</tr>
+	);
+}
+
+// Skeleton Row
+function InventoryRowSkeleton() {
+	return (
+		<tr className="border-b border-gray-100 animate-pulse">
+			<td className="px-4 py-4 sm:px-6">
+				<div className="flex items-center gap-3">
+					<div className="hidden sm:block w-10 h-10 rounded-lg bg-gray-200" />
+					<div className="space-y-2">
+						<div className="h-4 bg-gray-200 rounded w-32" />
+						<div className="h-3 bg-gray-100 rounded w-24" />
+					</div>
+				</div>
+			</td>
+			<td className="px-4 py-4 sm:px-6">
+				<div className="h-5 bg-gray-200 rounded w-16" />
+			</td>
+			<td className="hidden md:table-cell px-4 py-4 sm:px-6">
+				<div className="h-4 bg-gray-100 rounded w-12" />
+			</td>
+			<td className="hidden lg:table-cell px-4 py-4 sm:px-6">
+				<div className="h-4 bg-gray-100 rounded w-14" />
+			</td>
+			<td className="hidden xl:table-cell px-4 py-4 sm:px-6">
+				<div className="h-4 bg-gray-100 rounded w-20" />
+			</td>
+			<td className="px-4 py-4 sm:px-6">
+				<div className="h-6 bg-gray-200 rounded-full w-20" />
+			</td>
+			<td className="px-4 py-4 sm:px-6">
+				<div className="h-8 bg-gray-200 rounded-lg w-20" />
+			</td>
+		</tr>
+	);
+}
+
+// Stats Card Component
+interface StatsCardProps {
+	label: string;
+	value: number;
+	icon: React.ReactNode;
+	color: string;
+}
+
+function StatsCard({ label, value, icon, color }: StatsCardProps) {
+	return (
+		<div className={`p-4 sm:p-5 rounded-xl border ${color}`}>
+			<div className="flex items-center justify-between">
+				<div>
+					<p className="text-sm font-medium opacity-80">{label}</p>
+					<p className="text-2xl sm:text-3xl font-bold mt-1">{value}</p>
+				</div>
+				<div className="p-3 rounded-lg bg-white/20">{icon}</div>
+			</div>
+		</div>
+	);
+}
+
+// Main Inventory Page Component
 export default function InventoryPage() {
+	const router = useRouter();
 	const [searchQuery, setSearchQuery] = useState("");
-	const [selectedCategory, setSelectedCategory] = useState("all");
-	const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([
-		{
-			id: "1",
-			name: "Basmati Rice",
-			category: "Grains",
-			quantity: 60,
-			unit: "kg",
-			reorderLevel: 20,
-			lastUpdated: "2024-01-15",
-			location: "Storage A1",
-			supplier: "GrainCo",
-		},
-		{
-			id: "2",
-			name: "Fresh Vegetables",
-			category: "Produce",
-			quantity: 25,
-			unit: "kg",
-			reorderLevel: 30,
-			lastUpdated: "2024-01-15",
-			location: "Cooler B2",
-			supplier: "FarmFresh",
-		},
-		{
-			id: "3",
-			name: "Chicken Breast",
-			category: "Meat",
-			quantity: 22,
-			unit: "kg",
-			reorderLevel: 15,
-			lastUpdated: "2024-01-14",
-			location: "Freezer C3",
-			supplier: "MeatMasters",
-		},
-		{
-			id: "4",
-			name: "Mixed Spices",
-			category: "Seasonings",
-			quantity: 8,
-			unit: "kg",
-			reorderLevel: 5,
-			lastUpdated: "2024-01-14",
-			location: "Pantry D4",
-			supplier: "SpiceWorld",
-		},
-		{
-			id: "5",
-			name: "Olive Oil",
-			category: "Cooking",
-			quantity: 15,
-			unit: "l",
-			reorderLevel: 10,
-			lastUpdated: "2024-01-13",
-			location: "Storage A2",
-			supplier: "OilKing",
-		},
-		{
-			id: "6",
-			name: "Whole Milk",
-			category: "Dairy",
-			quantity: 20,
-			unit: "l",
-			reorderLevel: 15,
-			lastUpdated: "2024-01-15",
-			location: "Cooler B1",
-			supplier: "DairyDelight",
-		},
-		{
-			id: "7",
-			name: "Wheat Flour",
-			category: "Grains",
-			quantity: 45,
-			unit: "kg",
-			reorderLevel: 25,
-			lastUpdated: "2024-01-14",
-			location: "Storage A3",
-			supplier: "GrainCo",
-		},
-		{
-			id: "8",
-			name: "Sugar",
-			category: "Seasonings",
-			quantity: 35,
-			unit: "kg",
-			reorderLevel: 15,
-			lastUpdated: "2024-01-13",
-			location: "Pantry D3",
-			supplier: "SweetSupplies",
-		},
-	]);
+	const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+	const [sortField, setSortField] = useState<SortField>("ingredient_name");
+	const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
 
-	const [isAddingItem, setIsAddingItem] = useState(false);
-	const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
-	const [newItem, setNewItem] = useState({
-		name: "",
-		category: "Grains",
-		quantity: 0,
-		unit: "kg",
-		reorderLevel: 10,
-		location: "",
-		supplier: "",
-	});
+	// Use real data when backend is ready, mock for now
+	const { data, isLoading, isError } = useIngredients(searchQuery, showLowStockOnly);
+	const ingredients = data?.data || MOCK_INGREDIENTS;
 
-	const categories = ["all", "Grains", "Produce", "Meat", "Dairy", "Seasonings", "Cooking"];
-	const units = ["kg", "g", "l", "ml", "pcs", "boxes"];
+	// Calculate stats
+	const stats = useMemo(() => {
+		const total = ingredients.length;
+		const outOfStock = ingredients.filter((i) => i.current_quantity === 0).length;
+		const lowStock = ingredients.filter(
+			(i) => i.current_quantity > 0 && i.current_quantity <= i.minimum_threshold
+		).length;
+		const inStock = total - outOfStock - lowStock;
+		return { total, outOfStock, lowStock, inStock };
+	}, [ingredients]);
 
-	const filteredItems = inventoryItems.filter((item) => {
-		const matchesSearch =
-			item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			item.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			item.supplier?.toLowerCase().includes(searchQuery.toLowerCase());
-		const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
-		return matchesSearch && matchesCategory;
-	});
+	// Filter and sort
+	const filteredIngredients = useMemo(() => {
+		let filtered = [...ingredients];
 
-	const totalItems = inventoryItems.length;
-	const lowStockItems = inventoryItems.filter((item) => item.quantity <= item.reorderLevel).length;
-	const totalQuantity = inventoryItems.reduce((sum, item) => sum + item.quantity, 0);
-
-	// Handle keyboard events for modals
-	const handleKeyDown = (e: KeyboardEvent, action: () => void) => {
-		if (e.key === "Enter" || e.key === " " || e.key === "Escape") {
-			e.preventDefault();
-			action();
-		}
-	};
-
-	const handleModalKeyDown = (e: KeyboardEvent) => {
-		if (e.key === "Escape") {
-			closeModal();
-		}
-	};
-
-	const handleContentKeyDown = (e: KeyboardEvent) => {
-		// Stop propagation of Escape key to prevent closing from inside content
-		if (e.key === "Escape") {
-			e.stopPropagation();
-		}
-	};
-
-	// Function to handle adding a new item
-	const handleAddItem = () => {
-		if (!newItem.name.trim()) {
-			alert("Please enter an item name");
-			return;
+		// Search filter
+		if (searchQuery) {
+			const query = searchQuery.toLowerCase();
+			filtered = filtered.filter(
+				(i) =>
+					i.ingredient_name.toLowerCase().includes(query) ||
+					i.supplier?.toLowerCase().includes(query)
+			);
 		}
 
-		const newInventoryItem: InventoryItem = {
-			id: (Math.max(...inventoryItems.map((i) => parseInt(i.id, 10)), 0) + 1).toString(),
-			name: newItem.name,
-			category: newItem.category,
-			quantity: newItem.quantity,
-			unit: newItem.unit,
-			reorderLevel: newItem.reorderLevel,
-			lastUpdated: new Date().toISOString().split("T")[0],
-			location: newItem.location || "Default Storage",
-			supplier: newItem.supplier || "Unknown Supplier",
-		};
-
-		setInventoryItems([...inventoryItems, newInventoryItem]);
-
-		// Reset form
-		resetForm();
-		setIsAddingItem(false);
-	};
-
-	// Function to handle editing an item
-	const handleEditItem = () => {
-		if (!editingItem || !newItem.name.trim()) {
-			alert("Please enter an item name");
-			return;
+		// Low stock filter
+		if (showLowStockOnly) {
+			filtered = filtered.filter((i) => i.current_quantity <= i.minimum_threshold);
 		}
 
-		setInventoryItems(
-			inventoryItems.map((item) =>
-				item.id === editingItem.id
-					? {
-							...item,
-							name: newItem.name,
-							category: newItem.category,
-							quantity: newItem.quantity,
-							unit: newItem.unit,
-							reorderLevel: newItem.reorderLevel,
-							location: newItem.location || "Default Storage",
-							supplier: newItem.supplier || "Unknown Supplier",
-							lastUpdated: new Date().toISOString().split("T")[0],
-						}
-					: item
-			)
-		);
-
-		resetForm();
-		setEditingItem(null);
-	};
-
-	// Function to open edit modal
-	const openEditModal = (item: InventoryItem) => {
-		setEditingItem(item);
-		setNewItem({
-			name: item.name,
-			category: item.category,
-			quantity: item.quantity,
-			unit: item.unit,
-			reorderLevel: item.reorderLevel,
-			location: item.location || "",
-			supplier: item.supplier || "",
+		// Sort
+		filtered.sort((a, b) => {
+			let comparison = 0;
+			if (sortField === "ingredient_name") {
+				comparison = a.ingredient_name.localeCompare(b.ingredient_name);
+			} else if (sortField === "current_quantity") {
+				comparison = a.current_quantity - b.current_quantity;
+			} else if (sortField === "last_restocked") {
+				comparison =
+					new Date(a.last_restocked || 0).getTime() - new Date(b.last_restocked || 0).getTime();
+			}
+			return sortOrder === "asc" ? comparison : -comparison;
 		});
-	};
 
-	// Function to delete an item
-	const handleDeleteItem = (itemId: string) => {
-		if (confirm("Are you sure you want to delete this item?")) {
-			setInventoryItems(inventoryItems.filter((item) => item.id !== itemId));
+		return filtered;
+	}, [ingredients, searchQuery, showLowStockOnly, sortField, sortOrder]);
+
+	const handleSort = (field: SortField) => {
+		if (sortField === field) {
+			setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+		} else {
+			setSortField(field);
+			setSortOrder("asc");
 		}
 	};
 
-	// Function to reset form
-	const resetForm = () => {
-		setNewItem({
-			name: "",
-			category: "Grains",
-			quantity: 0,
-			unit: "kg",
-			reorderLevel: 10,
-			location: "",
-			supplier: "",
-		});
+	const handleRestock = (id: number) => {
+		// TODO: Open restock modal
+		console.log("Restock ingredient:", id);
 	};
 
-	// Function to close modal
-	const closeModal = () => {
-		setIsAddingItem(false);
-		setEditingItem(null);
-		resetForm();
-	};
-
-	// Function to export CSV
-	const handleExportCSV = () => {
-		const headers = [
-			"ID",
-			"Name",
-			"Category",
-			"Quantity",
-			"Unit",
-			"Reorder Level",
-			"Location",
-			"Supplier",
-			"Last Updated",
-			"Status",
-		];
-
-		const csvRows = [
-			headers.join(","),
-			...inventoryItems.map((item) => {
-				const isLow = item.quantity <= item.reorderLevel;
-				const status = isLow ? "Low Stock" : "Adequate";
-
-				return [
-					item.id,
-					`"${item.name}"`,
-					`"${item.category}"`,
-					item.quantity,
-					item.unit,
-					item.reorderLevel,
-					`"${item.location || ""}"`,
-					`"${item.supplier || ""}"`,
-					item.lastUpdated,
-					status,
-				].join(",");
-			}),
-		];
-
-		const csvString = csvRows.join("\n");
-		const blob = new Blob([csvString], { type: "text/csv" });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.setAttribute("hidden", "");
-		a.setAttribute("href", url);
-		a.setAttribute("download", `inventory_export_${new Date().toISOString().split("T")[0]}.csv`);
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-	};
-
-	// Function to print report
-	const handlePrintReport = () => {
-		const printWindow = window.open("", "_blank");
-		if (!printWindow) {
-			alert("Please allow popups to print the report");
-			return;
-		}
-
-		const printContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Kitchen Inventory Report</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; }
-          h1 { color: #333; border-bottom: 3px solid #3b82f6; padding-bottom: 10px; }
-          .report-header { margin-bottom: 30px; }
-          .date { color: #666; font-size: 14px; }
-          .summary { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 20px; 
-            margin-bottom: 30px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-          }
-          .summary-item { 
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border-left: 4px solid #3b82f6;
-          }
-          .summary-label { 
-            font-size: 12px; 
-            color: #666; 
-            text-transform: uppercase;
-            font-weight: 600;
-          }
-          .summary-value { 
-            font-size: 28px; 
-            font-weight: bold; 
-            color: #333; 
-            margin-top: 5px;
-          }
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-          }
-          th { 
-            background-color: #3b82f6; 
-            color: white; 
-            padding: 12px; 
-            text-align: left;
-            font-weight: 600;
-          }
-          td { 
-            padding: 10px; 
-            border-bottom: 1px solid #e5e7eb;
-          }
-          tr:hover { background-color: #f8f9fa; }
-          .low-stock { 
-            color: #dc2626; 
-            font-weight: bold;
-          }
-          .adequate { 
-            color: #059669; 
-            font-weight: bold;
-          }
-          .status-badge {
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-          }
-          .status-low {
-            background: #fee2e2;
-            color: #dc2626;
-          }
-          .status-ok {
-            background: #d1fae5;
-            color: #059669;
-          }
-          @media print {
-            .no-print { display: none; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="report-header">
-          <h1>📦 Kitchen Inventory Report</h1>
-          <p class="date">Generated on: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</p>
-        </div>
-        
-        <div class="summary">
-          <div class="summary-item">
-            <div class="summary-label">Total Items</div>
-            <div class="summary-value">${totalItems}</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">Low Stock Items</div>
-            <div class="summary-value" style="color: #dc2626;">${lowStockItems}</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">Total Quantity</div>
-            <div class="summary-value">${totalQuantity}</div>
-          </div>
-          <div class="summary-item">
-            <div class="summary-label">Categories</div>
-            <div class="summary-value">${categories.length - 1}</div>
-          </div>
-        </div>
-        
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Category</th>
-              <th>Quantity</th>
-              <th>Unit</th>
-              <th>Reorder Level</th>
-              <th>Location</th>
-              <th>Supplier</th>
-              <th>Status</th>
-              <th>Last Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${inventoryItems
-							.map((item) => {
-								const isLow = item.quantity <= item.reorderLevel;
-								return `
-                <tr>
-                  <td><strong>${item.name}</strong></td>
-                  <td>${item.category}</td>
-                  <td class="${isLow ? "low-stock" : "adequate"}">${item.quantity}</td>
-                  <td>${item.unit}</td>
-                  <td>${item.reorderLevel}</td>
-                  <td>${item.location}</td>
-                  <td>${item.supplier}</td>
-                  <td><span class="status-badge ${isLow ? "status-low" : "status-ok"}">${isLow ? "Low Stock" : "Adequate"}</span></td>
-                  <td>${item.lastUpdated}</td>
-                </tr>
-              `;
-							})
-							.join("")}
-          </tbody>
-        </table>
-        
-        <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e5e7eb; text-align: center; color: #666;">
-          <p><strong>Note:</strong> Items marked as "Low Stock" need to be reordered soon.</p>
-        </div>
-      </body>
-      </html>
-    `;
-
-		printWindow.document.write(printContent);
-		printWindow.document.close();
-		printWindow.focus();
-
-		setTimeout(() => {
-			printWindow.print();
-			printWindow.close();
-		}, 250);
+	const SortIcon = ({ field }: { field: SortField }) => {
+		if (sortField !== field) return <ChevronDown size={14} className="opacity-30" />;
+		return sortOrder === "asc" ? <ChevronUp size={14} /> : <ChevronDown size={14} />;
 	};
 
 	return (
-		<div className={styles.container}>
-			<Navbar />
-			<div className={styles.content}>
-				{/* Header */}
-				<div className={styles.header}>
-					<div>
-						<h1 className={styles.title}>📦 Kitchen Inventory</h1>
-						<p className={styles.subtitle}>Manage and track your kitchen supplies in real-time</p>
-					</div>
-					<div className={styles.headerActions}>
+		<div className="min-h-screen bg-gray-50">
+			{/* Header */}
+			<div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
+				<div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+					<div className="flex items-center gap-4 mb-6">
 						<button
-							onClick={() => setIsAddingItem(true)}
-							className={styles.primaryButton}
-							onKeyDown={(e) => handleKeyDown(e, () => setIsAddingItem(true))}
+							onClick={() => router.push("/staff")}
+							className="p-2 hover:bg-white/10 rounded-full transition-colors"
 						>
-							<Plus size={20} />
-							Add Item
+							<ArrowLeft size={24} />
 						</button>
-						<button
-							onClick={handleExportCSV}
-							className={styles.secondaryButton}
-							onKeyDown={(e) => handleKeyDown(e, handleExportCSV)}
-						>
-							<Download size={20} />
-							Export CSV
-						</button>
-						<button
-							onClick={handlePrintReport}
-							className={styles.secondaryButton}
-							onKeyDown={(e) => handleKeyDown(e, handlePrintReport)}
-						>
-							<Printer size={20} />
-							Print Report
-						</button>
-					</div>
-				</div>
-
-				{/* Add/Edit Item Modal */}
-				{(isAddingItem || editingItem) && (
-					<div
-						className={styles.modalOverlay}
-						onClick={closeModal}
-						onKeyDown={handleModalKeyDown}
-						role="dialog"
-						aria-modal="true"
-						aria-labelledby="modal-title"
-						tabIndex={-1}
-					>
-						<div
-							className={styles.modalContent}
-							onClick={(e) => e.stopPropagation()}
-							onKeyDown={handleContentKeyDown}
-							role="document"
-							tabIndex={-1}
-						>
-							<div className={styles.modalHeader}>
-								<h2 id="modal-title" className={styles.modalTitle}>
-									<Package size={24} />
-									{editingItem ? "Edit Item" : "Add New Item"}
-								</h2>
-								<button
-									onClick={closeModal}
-									className={styles.modalCloseButton}
-									onKeyDown={(e) => handleKeyDown(e, closeModal)}
-									aria-label="Close modal"
-								>
-									<X size={20} />
-								</button>
-							</div>
-
-							<div className={styles.modalForm}>
-								<div className={styles.formGroup}>
-									<label
-										htmlFor="itemName"
-										className={`${styles.formLabel} ${styles.formLabelRequired}`}
-									>
-										Item Name
-									</label>
-									<input
-										id="itemName"
-										type="text"
-										value={newItem.name}
-										onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-										className={styles.formInput}
-										placeholder="e.g., Basmati Rice, Chicken Breast"
-										required
-									/>
-								</div>
-
-								<div className={styles.formGrid}>
-									<div className={styles.formGroup}>
-										<label
-											htmlFor="category"
-											className={`${styles.formLabel} ${styles.formLabelRequired}`}
-										>
-											Category
-										</label>
-										<select
-											id="category"
-											value={newItem.category}
-											onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
-											className={styles.formSelect}
-											required
-										>
-											{categories
-												.filter((cat) => cat !== "all")
-												.map((category) => (
-													<option key={category} value={category}>
-														{category}
-													</option>
-												))}
-										</select>
-									</div>
-
-									<div className={styles.formGroup}>
-										<label
-											htmlFor="unit"
-											className={`${styles.formLabel} ${styles.formLabelRequired}`}
-										>
-											Unit
-										</label>
-										<select
-											id="unit"
-											value={newItem.unit}
-											onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
-											className={styles.formSelect}
-											required
-										>
-											{units.map((unit) => (
-												<option key={unit} value={unit}>
-													{unit}
-												</option>
-											))}
-										</select>
-									</div>
-								</div>
-
-								<div className={styles.formGrid}>
-									<div className={styles.formGroup}>
-										<label
-											htmlFor="quantity"
-											className={`${styles.formLabel} ${styles.formLabelRequired}`}
-										>
-											Quantity
-										</label>
-										<input
-											id="quantity"
-											type="number"
-											value={newItem.quantity}
-											onChange={(e) =>
-												setNewItem({ ...newItem, quantity: parseFloat(e.target.value) || 0 })
-											}
-											min="0"
-											step="0.01"
-											className={styles.formInput}
-											required
-										/>
-									</div>
-
-									<div className={styles.formGroup}>
-										<label htmlFor="reorderLevel" className={styles.formLabel}>
-											Reorder Level
-										</label>
-										<input
-											id="reorderLevel"
-											type="number"
-											value={newItem.reorderLevel}
-											onChange={(e) =>
-												setNewItem({ ...newItem, reorderLevel: parseFloat(e.target.value) || 0 })
-											}
-											min="0"
-											step="0.01"
-											className={styles.formInput}
-											required
-										/>
-									</div>
-								</div>
-
-								<div className={styles.formGroup}>
-									<label htmlFor="location" className={styles.formLabel}>
-										Location
-									</label>
-									<input
-										id="location"
-										type="text"
-										value={newItem.location}
-										onChange={(e) => setNewItem({ ...newItem, location: e.target.value })}
-										className={styles.formInput}
-										placeholder="e.g., Storage A1, Cooler B2"
-									/>
-								</div>
-
-								<div className={styles.formGroup}>
-									<label htmlFor="supplier" className={styles.formLabel}>
-										Supplier (Optional)
-									</label>
-									<input
-										id="supplier"
-										type="text"
-										value={newItem.supplier}
-										onChange={(e) => setNewItem({ ...newItem, supplier: e.target.value })}
-										className={styles.formInput}
-										placeholder="Enter supplier name"
-									/>
-								</div>
-							</div>
-
-							<div className={styles.modalActions}>
-								<button
-									onClick={closeModal}
-									className={styles.cancelButton}
-									onKeyDown={(e) => handleKeyDown(e, closeModal)}
-								>
-									Cancel
-								</button>
-								<button
-									onClick={editingItem ? handleEditItem : handleAddItem}
-									className={styles.submitButton}
-									onKeyDown={(e) => handleKeyDown(e, editingItem ? handleEditItem : handleAddItem)}
-								>
-									{editingItem ? "Update Item" : "Add Item"}
-								</button>
-							</div>
+						<div>
+							<h1 className="text-2xl sm:text-3xl font-bold">Inventory Management</h1>
+							<p className="text-white/80 text-sm sm:text-base">
+								Track and manage ingredient stock levels
+							</p>
 						</div>
 					</div>
-				)}
 
-				{/* Filters Section */}
-				<div className={styles.filters}>
-					<div className={styles.searchBar}>
-						<Search className={styles.searchIcon} size={20} />
+					{/* Stats Cards */}
+					<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+						<StatsCard
+							label="Total Items"
+							value={stats.total}
+							icon={<Package size={24} />}
+							color="bg-white/10 text-white border-white/20"
+						/>
+						<StatsCard
+							label="In Stock"
+							value={stats.inStock}
+							icon={<CheckCircle2 size={24} />}
+							color="bg-emerald-500/20 text-white border-emerald-400/30"
+						/>
+						<StatsCard
+							label="Low Stock"
+							value={stats.lowStock}
+							icon={<TrendingDown size={24} />}
+							color="bg-amber-500/20 text-white border-amber-400/30"
+						/>
+						<StatsCard
+							label="Out of Stock"
+							value={stats.outOfStock}
+							icon={<XCircle size={24} />}
+							color="bg-red-500/20 text-white border-red-400/30"
+						/>
+					</div>
+				</div>
+			</div>
+
+			{/* Content */}
+			<div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
+				{/* Search & Filters */}
+				<div className="flex flex-col sm:flex-row gap-4 mb-6">
+					{/* Search */}
+					<div className="relative flex-1">
+						<Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
 						<input
-							id="searchInput"
 							type="text"
-							placeholder="Search by name, category, location, or supplier..."
+							placeholder="Search ingredients or suppliers..."
 							value={searchQuery}
 							onChange={(e) => setSearchQuery(e.target.value)}
-							className={styles.searchInput}
+							className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
 						/>
-						{searchQuery && (
-							<button
-								onClick={() => setSearchQuery("")}
-								className={styles.clearSearch}
-								aria-label="Clear search"
-								onKeyDown={(e) => handleKeyDown(e, () => setSearchQuery(""))}
-							>
-								<X size={18} />
-							</button>
-						)}
 					</div>
-					<div className={styles.categoryFilter}>
-						<Filter size={18} />
-						<label htmlFor="categorySelect" className="sr-only">
-							Select Category
-						</label>
-						<select
-							id="categorySelect"
-							value={selectedCategory}
-							onChange={(e) => setSelectedCategory(e.target.value)}
-							className={styles.categorySelect}
-						>
-							<option value="all">All Categories</option>
-							{categories
-								.filter((cat) => cat !== "all")
-								.map((category) => (
-									<option key={category} value={category}>
-										{category}
-									</option>
-								))}
-						</select>
-						<ChevronDown size={16} />
-					</div>
+
+					{/* Low Stock Filter */}
+					<button
+						onClick={() => setShowLowStockOnly(!showLowStockOnly)}
+						className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border font-medium transition-all shrink-0 ${
+							showLowStockOnly
+								? "bg-amber-50 border-amber-200 text-amber-700"
+								: "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+						}`}
+					>
+						<AlertTriangle size={18} />
+						<span className="hidden sm:inline">Low Stock Only</span>
+						<span className="sm:hidden">Low Stock</span>
+					</button>
+
+					{/* Add Item Button */}
+					<button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 shrink-0">
+						<Plus size={18} />
+						<span className="hidden sm:inline">Add Ingredient</span>
+						<span className="sm:hidden">Add</span>
+					</button>
 				</div>
 
-				{/* Inventory Table */}
-				<div className={styles.tableContainer}>
-					<div className={styles.tableHeader}>
-						<div className={styles.tableHeaderContent}>
-							<span>
-								Showing {filteredItems.length} of {totalItems} items
-							</span>
-							{searchQuery && (
-								<span className={styles.searchResults}>
-									Search results for: "<strong>{searchQuery}</strong>"
-								</span>
-							)}
-						</div>
-					</div>
-
-					<table className={styles.table}>
-						<thead>
-							<tr>
-								<th>Item</th>
-								<th>Category</th>
-								<th>Quantity / Unit</th>
-								<th>Location</th>
-								<th>Reorder Level</th>
-								<th>Status</th>
-								<th>Last Updated</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{filteredItems.length > 0 ? (
-								filteredItems.map((item) => {
-									const isLow = item.quantity <= item.reorderLevel;
-									const isCritical = item.quantity <= item.reorderLevel / 2;
-
-									return (
-										<tr key={item.id}>
-											<td>
-												<div className={styles.itemName}>
-													<div
-														className={styles.itemDot}
-														style={{
-															backgroundColor: isCritical
-																? "#ef4444"
-																: isLow
-																	? "#f97316"
-																	: "#10b981",
-														}}
-													/>
-													<div>
-														<div className={styles.itemNameText}>{item.name}</div>
-														{item.supplier && (
-															<div className={styles.itemSupplier}>Supplier: {item.supplier}</div>
-														)}
-													</div>
-												</div>
-											</td>
-											<td>
-												<span className={styles.categoryBadge}>{item.category}</span>
-											</td>
-											<td>
-												<div className={styles.quantityCell}>
-													<span className={isLow ? styles.lowQuantity : styles.normalQuantity}>
-														{item.quantity}
-													</span>
-													<span className={styles.quantityUnit}>/ {item.unit}</span>
-												</div>
-											</td>
-											<td>{item.location}</td>
-											<td>
-												<div className={styles.reorderCell}>
-													<span>{item.reorderLevel}</span>
-													<span className={styles.reorderUnit}>{item.unit}</span>
-												</div>
-											</td>
-											<td>
-												<span className={isLow ? styles.statusAlert : styles.statusOk}>
-													{isCritical ? "Critical" : isLow ? "Low Stock" : "Adequate"}
-												</span>
-											</td>
-											<td>{item.lastUpdated}</td>
-											<td>
-												<div className={styles.actionButtons}>
-													<button
-														onClick={() => openEditModal(item)}
-														className={`${styles.actionButton} ${styles.editButton}`}
-														title="Edit item"
-														aria-label={`Edit ${item.name}`}
-														onKeyDown={(e) => handleKeyDown(e, () => openEditModal(item))}
-													>
-														<Edit2 size={16} />
-													</button>
-													<button
-														onClick={() => handleDeleteItem(item.id)}
-														className={`${styles.actionButton} ${styles.deleteButton}`}
-														title="Delete item"
-														aria-label={`Delete ${item.name}`}
-														onKeyDown={(e) => handleKeyDown(e, () => handleDeleteItem(item.id))}
-													>
-														<Trash2 size={16} />
-													</button>
-												</div>
-											</td>
-										</tr>
-									);
-								})
-							) : (
-								<tr>
-									<td colSpan={8} className={styles.noResultsCell}>
-										<div className={styles.noResultsContent}>
-											<Search size={48} />
-											<div className={styles.noResultsTitle}>No items found</div>
-											<div className={styles.noResultsMessage}>
-												{searchQuery ? "Try a different search term" : "Add items to get started"}
-											</div>
-										</div>
-									</td>
+				{/* Table */}
+				<div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+					<div className="overflow-x-auto">
+						<table className="w-full min-w-[600px]">
+							<thead>
+								<tr className="bg-gray-50 border-b border-gray-100">
+									<th className="px-4 py-3 sm:px-6 text-left">
+										<button
+											onClick={() => handleSort("ingredient_name")}
+											className="flex items-center gap-1 font-semibold text-gray-600 text-sm uppercase tracking-wide hover:text-gray-900"
+										>
+											Ingredient
+											<SortIcon field="ingredient_name" />
+										</button>
+									</th>
+									<th className="px-4 py-3 sm:px-6 text-left">
+										<button
+											onClick={() => handleSort("current_quantity")}
+											className="flex items-center gap-1 font-semibold text-gray-600 text-sm uppercase tracking-wide hover:text-gray-900"
+										>
+											Stock
+											<SortIcon field="current_quantity" />
+										</button>
+									</th>
+									<th className="hidden md:table-cell px-4 py-3 sm:px-6 text-left">
+										<span className="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+											Threshold
+										</span>
+									</th>
+									<th className="hidden lg:table-cell px-4 py-3 sm:px-6 text-left">
+										<span className="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+											Unit Cost
+										</span>
+									</th>
+									<th className="hidden xl:table-cell px-4 py-3 sm:px-6 text-left">
+										<button
+											onClick={() => handleSort("last_restocked")}
+											className="flex items-center gap-1 font-semibold text-gray-600 text-sm uppercase tracking-wide hover:text-gray-900"
+										>
+											Last Restocked
+											<SortIcon field="last_restocked" />
+										</button>
+									</th>
+									<th className="px-4 py-3 sm:px-6 text-left">
+										<span className="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+											Status
+										</span>
+									</th>
+									<th className="px-4 py-3 sm:px-6 text-left">
+										<span className="font-semibold text-gray-600 text-sm uppercase tracking-wide">
+											Actions
+										</span>
+									</th>
 								</tr>
-							)}
-						</tbody>
-					</table>
-				</div>
+							</thead>
+							<tbody>
+								{isLoading ? (
+									Array.from({ length: 5 }).map((_, i) => <InventoryRowSkeleton key={i} />)
+								) : filteredIngredients.length === 0 ? (
+									<tr>
+										<td colSpan={7} className="px-6 py-12 text-center">
+											<Package size={48} className="mx-auto text-gray-300 mb-4" />
+											<p className="text-gray-500 font-medium">No ingredients found</p>
+											<p className="text-gray-400 text-sm">
+												{searchQuery
+													? "Try a different search term"
+													: "Add your first ingredient to get started"}
+											</p>
+										</td>
+									</tr>
+								) : (
+									filteredIngredients.map((ingredient) => (
+										<InventoryRow
+											key={ingredient.ingredient_id}
+											ingredient={ingredient}
+											onRestock={handleRestock}
+										/>
+									))
+								)}
+							</tbody>
+						</table>
+					</div>
 
-				{/* Summary Stats */}
-				<div className={styles.stats}>
-					<div className={styles.statCard}>
-						<h4 className={styles.statTitle}>Total Items</h4>
-						<p className={styles.statValue}>{totalItems}</p>
-						<div className={styles.statSubtitle}>{filteredItems.length} currently showing</div>
-					</div>
-					<div className={styles.statCard}>
-						<h4 className={styles.statTitle}>Low Stock Items</h4>
-						<p className={styles.statValue} style={{ color: "var(--color-danger)" }}>
-							{lowStockItems}
-						</p>
-						<div className={styles.statSubtitle}>Needs attention</div>
-					</div>
-					<div className={styles.statCard}>
-						<h4 className={styles.statTitle}>Total Quantity</h4>
-						<p className={styles.statValue}>{totalQuantity}</p>
-						<div className={styles.statSubtitle}>Across all items</div>
-					</div>
-					<div className={styles.statCard}>
-						<h4 className={styles.statTitle}>Categories</h4>
-						<p className={styles.statValue}>{categories.length - 1}</p>
-						<div className={styles.statSubtitle}>Different types</div>
-					</div>
+					{/* Table Footer */}
+					{filteredIngredients.length > 0 && (
+						<div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+							<p className="text-sm text-gray-500">
+								Showing{" "}
+								<span className="font-medium text-gray-900">{filteredIngredients.length}</span> of{" "}
+								<span className="font-medium text-gray-900">{ingredients.length}</span> ingredients
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

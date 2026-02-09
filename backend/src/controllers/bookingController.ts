@@ -7,6 +7,7 @@ import {
 	getAvailableSlots,
 	getBookingById,
 	getBookingPaymentsByUserId,
+	getMealSlotById,
 	getSlotMenuItems,
 	getSlotRecommendations,
 	getUserBookings,
@@ -556,6 +557,47 @@ export const searchUsersController = async (req: Request, res: Response): Promis
 
 		res.status(result.statusCode).json({
 			success: true,
+			data: result.data,
+		});
+	} catch (error) {
+		res.status(STATUS.SERVERERROR).json({
+			success: false,
+			message: "Internal Server Error",
+			error: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+};
+
+/**
+ * GET /api/bookings/slots/:slot_id
+ * Get meal slot details by slot ID
+ */
+export const getMealSlotByIdController = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const paramValidation = slotIdParamSchema.safeParse(req.params);
+		if (!paramValidation.success) {
+			res.status(STATUS.BADREQUEST).json({
+				success: false,
+				error: "Invalid slot ID",
+			});
+			return;
+		}
+
+		const slotId = parseInt(paramValidation.data.slotId, 10);
+
+		const result = await getMealSlotById(slotId);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({
+				success: false,
+				error: result.error,
+			});
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			message: "Meal slot retrieved successfully",
 			data: result.data,
 		});
 	} catch (error) {

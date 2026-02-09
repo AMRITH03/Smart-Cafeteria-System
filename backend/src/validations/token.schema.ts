@@ -21,6 +21,11 @@ export const generateTokenSchema = z.object({
 	booking_id: z.number().int().positive("Booking ID must be a positive integer"),
 });
 
+// Activate meal slot schema (param validation)
+export const activateMealSlotSchema = z.object({
+	slotId: z.string().regex(/^\d+$/, "Slot ID must be a number"),
+});
+
 // Activate token schema
 export const activateTokenSchema = z.object({
 	token_id: z.number().int().positive("Token ID must be a positive integer"),
@@ -82,3 +87,4 @@ export type GetQueueStatusInput = z.infer<typeof getQueueStatusSchema>;
 export type TokenStatusFilterInput = z.infer<typeof tokenStatusFilterSchema>;
 export type UpdateCounterStatusInput = z.infer<typeof updateCounterStatusSchema>;
 export type GetUserTokensQueryInput = z.infer<typeof getUserTokensQuerySchema>;
+export type ActivateMealSlotInput = z.infer<typeof activateMealSlotSchema>;

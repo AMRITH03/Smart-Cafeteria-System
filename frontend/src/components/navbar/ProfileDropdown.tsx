@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { AuthService } from "@/services/auth.service";
-import { User, LogOut, ReceiptText, BookCheck } from "lucide-react";
+import { User, LogOut, ReceiptText, BookCheck, Package, BarChart3 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { useRole } from "@/hooks/useRole";
 
 export function ProfileDropdown() {
 	const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +15,7 @@ export function ProfileDropdown() {
 	const dropdownRef = useRef<HTMLDivElement>(null);
 	const router = useRouter();
 	const logout = useAuthStore((s) => s.logout);
+	const { isStaff } = useRole();
 
 	// Close when clicking outside
 	useEffect(() => {
@@ -70,26 +72,52 @@ export function ProfileDropdown() {
 					</Link>
 
 					<div className="px-3 py-2 border-b my-1 mt-2">
-						<p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Activity</p>
+						<p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+							{isStaff ? "Staff Tools" : "Activity"}
+						</p>
 					</div>
 
-					<Link
-						href="/my-bookings"
-						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-						onClick={() => setIsOpen(false)}
-					>
-						<BookCheck size={18} />
-						My Bookings
-					</Link>
+					{isStaff ? (
+						<>
+							<Link
+								href="/staff/inventory"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								onClick={() => setIsOpen(false)}
+							>
+								<Package size={18} />
+								Inventory
+							</Link>
 
-					<Link
-						href="/transaction-history"
-						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-						onClick={() => setIsOpen(false)}
-					>
-						<ReceiptText size={18} />
-						Transaction History
-					</Link>
+							<Link
+								href="/staff/forecast"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								onClick={() => setIsOpen(false)}
+							>
+								<BarChart3 size={18} />
+								Forecaster
+							</Link>
+						</>
+					) : (
+						<>
+							<Link
+								href="/my-bookings"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								onClick={() => setIsOpen(false)}
+							>
+								<BookCheck size={18} />
+								My Bookings
+							</Link>
+
+							<Link
+								href="/transaction-history"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								onClick={() => setIsOpen(false)}
+							>
+								<ReceiptText size={18} />
+								Transaction History
+							</Link>
+						</>
+					)}
 
 					<div className="my-2 border-t" />
 

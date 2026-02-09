@@ -6,6 +6,7 @@ import {
 	getBookingByIdController,
 	getBookingPaymentsController,
 	getDemandAnalysisController,
+	getMealSlotByIdController,
 	getSlotMenuController,
 	getSlotRecommendationsController,
 	getUserBookingsController,
@@ -35,6 +36,12 @@ router.get("/slots/recommendations", getSlotRecommendationsController);
  * GET /api/bookings/slots/:slotId/menu?search_text=&category=&is_vegetarian=
  */
 router.get("/slots/:slotId/menu", getSlotMenuController);
+
+/**
+ * GET /api/bookings/slots/:slotId
+ * Get meal slot details by slot ID
+ */
+router.get("/slots/:slotId", getMealSlotByIdController);
 
 /**
  * GET /api/bookings/demand-analysis?date=YYYY-MM-DD

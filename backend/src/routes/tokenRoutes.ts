@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {
+	activateMealSlotController,
 	activateTokenController,
 	callNextTokenController,
 	closeCounterController,
@@ -79,6 +80,12 @@ router.post("/:tokenId/activate", requireAuth, activateTokenController);
 // STAFF ROUTES (for serving operations)
 // TODO: Add staff middleware for proper authorization
 // ============================================
+
+/**
+ * POST /api/tokens/meal-slot/:slotId/activate
+ * Activate all pending tokens for a meal slot and assign to optimal counters
+ */
+router.post("/meal-slot/:slotId/activate", activateMealSlotController);
 
 /**
  * POST /api/tokens/counters/:counterId/call-next

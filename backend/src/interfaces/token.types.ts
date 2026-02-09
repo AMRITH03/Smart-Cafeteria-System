@@ -62,6 +62,10 @@ export interface TokenQueueItem {
 	queue_position: number;
 	group_size: number;
 	activated_at: string | null;
+	meal_items?: {
+		item_name: string;
+		quantity: number;
+	}[];
 }
 
 // Queue Progress Types
@@ -132,6 +136,22 @@ export interface TokenActivationResponse {
 	queue_position: number;
 	estimated_wait_time: number;
 	activated_at: string;
+}
+
+export interface MealSlotActivationResponse {
+	slot_id: number;
+	total_tokens: number;
+	activated_tokens: number;
+	failed_tokens: number;
+	results: {
+		token_id: number;
+		token_number: string;
+		success: boolean;
+		counter_id?: number;
+		counter_name?: string;
+		queue_position?: number;
+		error?: string;
+	}[];
 }
 
 export interface CounterClosureResponse {
