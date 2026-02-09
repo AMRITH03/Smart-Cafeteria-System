@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
 				port: "",
 				pathname: "/**",
 			},
+			{
+				protocol: "https",
+				hostname: "hhvmrwztzstatxgglcot.supabase.co",
+				port: "",
+				pathname: "/storage/v1/object/public/**",
+			},
 		],
 		// Optimize images for OG meta tags and social sharing
 		deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],

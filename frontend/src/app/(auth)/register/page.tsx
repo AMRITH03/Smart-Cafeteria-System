@@ -1,4 +1,4 @@
-import { RegisterFormContainer } from "@/features/auth/components/RegisterFormContainer";
+import { RegisterFormContainer } from "@/components/auth/RegisterFormContainer";
 
 export default function RegisterPage() {
 	return <RegisterFormContainer />;
