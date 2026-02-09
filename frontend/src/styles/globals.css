@@ -6,39 +6,39 @@
   --primary-light: 221 83% 53% / 0.1;
   --warning-light: 38 92% 50% / 0.1;
   --danger-light: 0 84% 60% / 0.1;
-  
+
   /* HSL Color Variables */
   --background: 210 40% 98%;
   --foreground: 222 47% 11%;
-  
+
   --card: 0 0% 100%;
   --card-foreground: 222 47% 11%;
-  
+
   --border: 214 32% 91%;
-  
+
   --primary: 221 83% 53%;
   --primary-foreground: 0 0% 100%;
-  
+
   --success: 160 84% 39%;
   --success-foreground: 0 0% 100%;
-  
+
   --warning: 38 92% 50%;
   --danger: 0 84% 60%;
-  
+
   --muted: 210 40% 96%;
   --muted-foreground: 215 16% 47%;
-  
+
   /* Custom colors for your app */
   --breakfast: 45 93% 47%;
   --lunch: 160 84% 39%;
   --snacks: 262 83% 58%;
   --dinner: 24 95% 53%;
-  
+
   --status-serving: 221 83% 53%;
   --status-served: 160 84% 39%;
   --status-active: 38 92% 50%;
   --status-expired: 215 16% 47%;
-  
+
   /* Spacing variables for CSS modules */
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
@@ -47,7 +47,7 @@
   --spacing-6: 1.5rem;
   --spacing-8: 2rem;
   --spacing-12: 3rem;
-  
+
   /* Font Sizes */
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -56,25 +56,25 @@
   --font-size-xl: 1.25rem;
   --font-size-2xl: 1.5rem;
   --font-size-3xl: 1.875rem;
-  
+
   /* Font Weights */
   --font-weight-normal: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-  
+
   /* Border Radius */
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  
+
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -91,6 +91,7 @@ body {
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
   line-height: 1.5;
+  scroll-behavior: smooth;
 }
 
 /* Utility classes for CSS modules */
@@ -106,19 +107,7 @@ body {
   background-color: hsl(var(--muted));
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
 
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-  }
-}
 
 @keyframes floatLuxury {
   0% {
