@@ -35,7 +35,7 @@ export const createUser = async (validatedUser: RegisterUserRequest): Promise<Se
     ]);
 
   if (profileError) {
-    await public_client.auth.admin.deleteUser(userId);
+    await service_client.auth.admin.deleteUser(userId);
     return { success: false, error: profileError.message, statusCode: STATUS.SERVERERROR };
   }
 
@@ -69,28 +69,28 @@ export const logOut = async (accessToken: string): Promise<ServiceResponse<void>
 }
 
 export const requestPasswordReset = async (email: string): Promise<void> => {
-    const { error } = await service_client.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.FRONTEND_URL}/reset-password`, 
-    });
+  const { error } = await service_client.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.FRONTEND_URL}/reset-password`,
+  });
 
-    if (error) {
-      throw new Error(error.message);
-    }
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export const updateUserPassword = async (accessToken: string, newPassword: string): Promise<void> => {
 
   const { data: { user }, error } = await service_client.auth.getUser(accessToken);
   if (error || !user) {
-      throw new Error("Invalid or expired session token");
+    throw new Error("Invalid or expired session token");
   }
-  
+
   const { error: updateError } = await service_client.auth.admin.updateUserById(
-      user.id,
-      { password: newPassword }
-    );
+    user.id,
+    { password: newPassword }
+  );
 
   if (updateError) {
-      throw new Error(updateError.message);
-    }
+    throw new Error(updateError.message);
+  }
 }
