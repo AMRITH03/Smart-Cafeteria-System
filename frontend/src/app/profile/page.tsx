@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useAuthStore } from "@/stores/auth.store";
 import { useProfile, useUpdateProfile } from "@/hooks/profile/useProfile";
+import { useRole } from "@/hooks/useRole";
 import { ProfileHeaderSkeleton } from "@/components/profile/ProfileHeaderSkeleton";
 import { WalletDashboard } from "@/components/wallet/WalletDashboard";
 import {
@@ -43,6 +44,7 @@ export default function ProfilePage() {
 	const { token, isHydrated, logout } = useAuthStore();
 	const { data: profile, isLoading, error } = useProfile();
 	const updateProfileMutation = useUpdateProfile();
+	const { isStaff } = useRole();
 
 	const [isEditing, setIsEditing] = useState(false);
 	const [isWalletOpen, setIsWalletOpen] = useState(true);
@@ -311,31 +313,33 @@ export default function ProfilePage() {
 				</div>
 			) : null}
 
-			{/* Wallet Section */}
-			<section className="overflow-hidden rounded-xl border bg-white shadow-sm">
-				<button
-					onClick={() => setIsWalletOpen(!isWalletOpen)}
-					className="flex w-full items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-				>
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-							<Wallet size={20} />
+			{/* Wallet Section - Hidden for staff users */}
+			{!isStaff && (
+				<section className="overflow-hidden rounded-xl border bg-white shadow-sm">
+					<button
+						onClick={() => setIsWalletOpen(!isWalletOpen)}
+						className="flex w-full items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+					>
+						<div className="flex items-center gap-3">
+							<div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+								<Wallet size={20} />
+							</div>
+							<span className="font-semibold text-gray-900">Personal Wallet</span>
 						</div>
-						<span className="font-semibold text-gray-900">Personal Wallet</span>
-					</div>
-					<div className="flex items-center gap-2">
-						<span className="text-sm font-bold text-gray-900 italic">
-							₹{profile?.wallet_balance?.toFixed(2) ?? "0.00"}
-						</span>
-						{isWalletOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-					</div>
-				</button>
-				{isWalletOpen && (
-					<div className="border-t">
-						<WalletDashboard />
-					</div>
-				)}
-			</section>
+						<div className="flex items-center gap-2">
+							<span className="text-sm font-bold text-gray-900 italic">
+								₹{profile?.wallet_balance?.toFixed(2) ?? "0.00"}
+							</span>
+							{isWalletOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+						</div>
+					</button>
+					{isWalletOpen && (
+						<div className="border-t">
+							<WalletDashboard />
+						</div>
+					)}
+				</section>
+			)}
 
 			{/* Logout */}
 			<button

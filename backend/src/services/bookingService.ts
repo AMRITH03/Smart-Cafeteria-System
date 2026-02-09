@@ -137,7 +137,6 @@ export const getAvailableSlots = async (
 		let query = service_client
 			.from("meal_slots")
 			.select("*")
-			.eq("is_active", true)
 			.order("slot_date", { ascending: true })
 			.order("start_time", { ascending: true });
 
@@ -1484,6 +1483,39 @@ export const analyzeDemand = async (date: string): Promise<ServiceResponse<Deman
 		return {
 			success: true,
 			data: demandAnalysis,
+			statusCode: STATUS.SUCCESS,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Unknown error occurred",
+			statusCode: STATUS.SERVERERROR,
+		};
+	}
+};
+
+/**
+ * Get meal slot details by slot ID
+ */
+export const getMealSlotById = async (slotId: number): Promise<ServiceResponse<MealSlot>> => {
+	try {
+		const { data: mealSlot, error: slotError } = await service_client
+			.from("meal_slots")
+			.select("*")
+			.eq("slot_id", slotId)
+			.single();
+
+		if (slotError || !mealSlot) {
+			return {
+				success: false,
+				error: "Meal slot not found",
+				statusCode: STATUS.NOTFOUND,
+			};
+		}
+
+		return {
+			success: true,
+			data: mealSlot,
 			statusCode: STATUS.SUCCESS,
 		};
 	} catch (error) {

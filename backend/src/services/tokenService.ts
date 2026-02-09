@@ -1,6 +1,7 @@
 import { service_client, getAuthenticatedClient } from "../config/supabase";
 import type {
 	CounterClosureResponse,
+	MealSlotActivationResponse,
 	OverallQueueStatus,
 	QueueProgress,
 	ServiceCounter,
@@ -632,6 +633,184 @@ export const activateToken = async (
 };
 
 // ============================================
+// Meal Slot Activation Services
+// ============================================
+
+/**
+ * Activate all pending tokens for a given meal slot.
+ * Fetches every token with status 'pending' whose booking belongs to the slot,
+ * then assigns each to the optimal counter (same logic as single-token activate).
+ */
+export const activateMealSlot = async (
+	slotId: number
+): Promise<ServiceResponse<MealSlotActivationResponse>> => {
+	try {
+		// Verify the meal slot exists
+		const { data: mealSlot, error: slotError } = await service_client
+			.from("meal_slots")
+			.select("*")
+			.eq("slot_id", slotId)
+			.single();
+
+		if (slotError || !mealSlot) {
+			return {
+				success: false,
+				error: "Meal slot not found",
+				statusCode: STATUS.NOTFOUND,
+			};
+		}
+		// Check if we are within the activation window (slot start - 15 min ... slot end)
+		const now = new Date();
+		const slotStart = createISTDate(mealSlot.slot_date, mealSlot.start_time);
+		const slotEnd = createISTDate(mealSlot.slot_date, mealSlot.end_time);
+		const activationWindowStart = new Date(slotStart.getTime() - ACTIVATION_START_TIME * 60 * 1000);
+
+		if (now < activationWindowStart) {
+			return {
+				success: false,
+				error: `Tokens can only be activated 15 minutes before slot starts (${mealSlot.start_time})`,
+				statusCode: STATUS.BADREQUEST,
+			};
+		}
+
+		if (now > slotEnd) {
+			return {
+				success: false,
+				error: "Slot time has ended. Tokens cannot be activated.",
+				statusCode: STATUS.BADREQUEST,
+			};
+		}
+
+		// Set the meal slot is_active to true
+		const { error: activateSlotError } = await service_client
+			.from("meal_slots")
+			.update({ is_active: true })
+			.eq("slot_id", slotId);
+
+		if (activateSlotError) {
+			return {
+				success: false,
+				error: "Failed to activate meal slot",
+				statusCode: STATUS.SERVERERROR,
+			};
+		}
+
+		// Fetch all pending tokens for this slot
+		const { data: pendingTokens, error: tokensError } = await service_client
+			.from("tokens")
+			.select(`
+				token_id,
+				token_number,
+				token_status,
+				bookings!inner (
+					slot_id
+				)
+			`)
+			.eq("token_status", "pending")
+			.eq("bookings.slot_id", slotId);
+
+		if (tokensError) {
+			return {
+				success: false,
+				error: "Failed to fetch tokens for this meal slot",
+				statusCode: STATUS.SERVERERROR,
+			};
+		}
+
+		if (!pendingTokens || pendingTokens.length === 0) {
+			return {
+				success: false,
+				error: "No pending tokens found for this meal slot",
+				statusCode: STATUS.NOTFOUND,
+			};
+		}
+
+		const results: MealSlotActivationResponse["results"] = [];
+		let activatedCount = 0;
+		let failedCount = 0;
+
+		// Activate each token by assigning to optimal counter
+		for (const tk of pendingTokens) {
+			try {
+				const optimalCounter = await getOptimalCounter();
+
+				if (!optimalCounter) {
+					results.push({
+						token_id: tk.token_id,
+						token_number: tk.token_number,
+						success: false,
+						error: "No active service counters available",
+					});
+					failedCount++;
+					continue;
+				}
+
+				const activatedAt = getCurrentISOStringIST();
+				const { data: updatedToken, error: updateError } = await service_client
+					.from("tokens")
+					.update({
+						token_status: "active",
+						counter_id: optimalCounter.counter_id,
+						activated_at: activatedAt,
+					})
+					.eq("token_id", tk.token_id)
+					.select()
+					.single();
+
+				if (updateError || !updatedToken) {
+					results.push({
+						token_id: tk.token_id,
+						token_number: tk.token_number,
+						success: false,
+						error: updateError?.message || "Failed to activate token",
+					});
+					failedCount++;
+					continue;
+				}
+
+				const queuePosition = await getQueuePosition(optimalCounter.counter_id, tk.token_id);
+
+				results.push({
+					token_id: tk.token_id,
+					token_number: tk.token_number,
+					success: true,
+					counter_id: optimalCounter.counter_id,
+					counter_name: optimalCounter.counter_name,
+					queue_position: queuePosition,
+				});
+				activatedCount++;
+			} catch (err) {
+				results.push({
+					token_id: tk.token_id,
+					token_number: tk.token_number,
+					success: false,
+					error: err instanceof Error ? err.message : "Unknown error",
+				});
+				failedCount++;
+			}
+		}
+
+		return {
+			success: true,
+			data: {
+				slot_id: slotId,
+				total_tokens: pendingTokens.length,
+				activated_tokens: activatedCount,
+				failed_tokens: failedCount,
+				results,
+			},
+			statusCode: STATUS.SUCCESS,
+		};
+	} catch (error) {
+		return {
+			success: false,
+			error: error instanceof Error ? error.message : "Unknown error occurred",
+			statusCode: STATUS.SERVERERROR,
+		};
+	}
+};
+
+// ============================================
 // Queue Display & Progress Services
 // ============================================
 
@@ -848,12 +1027,21 @@ export const startServingToken = async (
 			};
 		}
 
-		// Get next token in queue (oldest activated token)
+		// Get next token in queue (oldest activated token) with meal details
 		const { data: nextToken, error: nextError } = await service_client
 			.from("tokens")
 			.select(`
 				*,
-				bookings (booking_reference, group_size)
+				bookings (
+					booking_reference,
+					group_size,
+					booking_menu_items (
+						quantity,
+						menu_items (
+							item_name
+						)
+					)
+				)
 			`)
 			.eq("counter_id", counterId)
 			.eq("token_status", "active")
@@ -883,6 +1071,14 @@ export const startServingToken = async (
 			};
 		}
 
+		// Map meal items from the booking
+		const mealItems = (nextToken.bookings.booking_menu_items || []).map(
+			(item: { quantity: number; menu_items: { item_name: string } }) => ({
+				item_name: item.menu_items.item_name,
+				quantity: item.quantity,
+			})
+		);
+
 		return {
 			success: true,
 			data: {
@@ -894,6 +1090,7 @@ export const startServingToken = async (
 				queue_position: 0,
 				group_size: nextToken.bookings.group_size,
 				activated_at: nextToken.activated_at,
+				meal_items: mealItems,
 			},
 			statusCode: STATUS.SUCCESS,
 		};

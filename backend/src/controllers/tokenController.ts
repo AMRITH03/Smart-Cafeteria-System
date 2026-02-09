@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { STATUS } from "../interfaces/status.types";
 import {
+	activateMealSlot,
 	activateToken,
 	closeCounterAndReassign,
 	generateToken,
@@ -14,6 +15,7 @@ import {
 	startServingToken,
 } from "../services/tokenService";
 import {
+	activateMealSlotSchema,
 	closeCounterSchema,
 	counterIdParamSchema,
 	generateTokenSchema,
@@ -266,6 +268,51 @@ export const activateTokenController = async (req: Request, res: Response): Prom
 		res.status(result.statusCode).json({
 			success: true,
 			message: "Token activated successfully",
+			data: result.data,
+		});
+	} catch (error) {
+		res.status(STATUS.SERVERERROR).json({
+			success: false,
+			message: "Internal Server Error",
+			error: error instanceof Error ? error.message : "Unknown error",
+		});
+	}
+};
+
+// ============================================
+// Meal Slot Activation Controllers
+// ============================================
+
+/**
+ * POST /api/tokens/meal-slot/:slotId/activate
+ * Activate all pending tokens for a meal slot, assigning each to optimal counters
+ */
+export const activateMealSlotController = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const paramValidation = activateMealSlotSchema.safeParse(req.params);
+		if (!paramValidation.success) {
+			res.status(STATUS.BADREQUEST).json({
+				success: false,
+				error: "Invalid slot ID",
+			});
+			return;
+		}
+
+		const slotId = parseInt(paramValidation.data.slotId, 10);
+
+		const result = await activateMealSlot(slotId);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({
+				success: false,
+				error: result.error,
+			});
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			message: `Meal slot activated: ${result.data?.activated_tokens}/${result.data?.total_tokens} tokens assigned to counters`,
 			data: result.data,
 		});
 	} catch (error) {
