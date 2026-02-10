@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useRole } from "@/hooks/useRole";
 import { useAuthStore } from "@/stores/auth.store";
-import { Navbar } from "@/components/navbar/Navbar";
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
@@ -41,10 +40,5 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 		return null;
 	}
 
-	return (
-		<>
-			<Navbar />
-			<main className="pt-20 min-h-screen bg-gray-50">{children}</main>
-		</>
-	);
+	return <>{children}</>;
 }

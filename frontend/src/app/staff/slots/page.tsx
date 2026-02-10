@@ -1,14 +1,16 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { StaffSlotList } from "@/components/staff/StaffSlotList";
+import { CreateSlotModal } from "@/components/staff/CreateSlotModal";
 import { ArrowLeft, Plus } from "lucide-react";
 
 function StaffSlotsPageContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const mealType = searchParams.get("type") || "breakfast";
+	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
 	const getMealTypeLabel = (type: string) => {
 		const labels: Record<string, string> = {
@@ -40,10 +42,7 @@ function StaffSlotsPageContent() {
 
 				{/* Create Slot Button */}
 				<button
-					onClick={() => {
-						// TODO: Open create slot modal
-						console.log("Create slot modal");
-					}}
+					onClick={() => setIsCreateModalOpen(true)}
 					className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25"
 				>
 					<Plus size={20} />
@@ -53,6 +52,13 @@ function StaffSlotsPageContent() {
 
 			{/* Slot List */}
 			<StaffSlotList mealType={mealType} />
+
+			{/* Create Slot Modal */}
+			<CreateSlotModal
+				isOpen={isCreateModalOpen}
+				onClose={() => setIsCreateModalOpen(false)}
+				mealType={mealType}
+			/>
 		</div>
 	);
 }
