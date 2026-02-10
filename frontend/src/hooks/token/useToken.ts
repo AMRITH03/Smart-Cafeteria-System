@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { TokenService } from "@/src/services/token/TokenService";
 import type { TokenWithDetails, TokenGenerationResponse } from "@/src/types/token.types";
 

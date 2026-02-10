@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { WalletService } from "../../services/wallet/WalletService";
 import { TokenService } from "../../services/token/TokenService";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 /** Fetch the authenticated user's wallet balance */
 export function useWalletBalance() {
@@ -28,6 +28,9 @@ export function useCreateCheckoutSession() {
 	return useMutation({
 		mutationFn: (payload: { amount: number; return_url: string }) =>
 			WalletService.createCheckoutSession(payload),
+		onSuccess: () => {
+			toast.success("Recharge session created. Redirecting to payment...");
+		},
 		onError: () => {
 			toast.error("Failed to initiate wallet recharge.");
 		},

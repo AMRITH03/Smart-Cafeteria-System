@@ -6,7 +6,7 @@ import { useCartStore } from "@/stores/cart.store";
 import { useAuthStore } from "@/stores/auth.store";
 import { useBookingStore } from "@/src/stores/booking.store";
 import { GroupMemberSearch } from "@/src/components/bookings/GroupMemberSearch";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 
 export default function CheckoutPage() {

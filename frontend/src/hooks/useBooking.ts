@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { BookingService } from "@/src/services/booking.service";
 import type { CreateBookingPayload } from "@/src/types/booking.types";
 
@@ -30,7 +31,12 @@ export function useCreateBooking() {
 	return useMutation({
 		mutationFn: (payload: CreateBookingPayload) => BookingService.createBooking(payload),
 		onSuccess: () => {
+			toast.success("Booking created successfully!");
 			queryClient.invalidateQueries({ queryKey: ["bookings"] });
+			queryClient.invalidateQueries({ queryKey: ["myBookings"] });
+		},
+		onError: () => {
+			toast.error("Failed to create booking. Please try again.");
 		},
 	});
 }

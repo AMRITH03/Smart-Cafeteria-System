@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { ProfileService } from "../../services/profile/ProfileService";
 import type { UserProfile, UpdateProfilePayload } from "../../types/profile/profile.types";
 

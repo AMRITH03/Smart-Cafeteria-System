@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { StaffService, QueueToken, ServingToken } from "@/services/staff/StaffService";
 
 // Get slots for staff management

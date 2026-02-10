@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { AuthService } from "@/services/auth.service";
 import { User, LogOut, ReceiptText, BookCheck, Package, BarChart3 } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useRole } from "@/hooks/useRole";
 
 export function ProfileDropdown() {

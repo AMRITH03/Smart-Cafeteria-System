@@ -1,6 +1,6 @@
 import axios from "axios";
 import axiosRetry from "axios-retry";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { useAuthStore } from "@/src/stores/auth.store";
 import { useMaintenanceStore } from "@/src/stores/useMaintenanceStore";
 import type { ApiResponse } from "@/src/types/primitiveTypes";

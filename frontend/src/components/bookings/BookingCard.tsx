@@ -1,7 +1,7 @@
 import { CreditCard, Wallet, AlertCircle } from "lucide-react";
 import { Booking, BookingStatus } from "@/src/types/booking.types";
 import { useContribute } from "@/src/hooks/wallet/useWallet";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 
 interface Props {
 	booking: Booking;

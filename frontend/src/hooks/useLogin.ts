@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { AuthService } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth.store";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import type { LoginResponse } from "@/types/auth.types";
 
 type LoginPayload = {
