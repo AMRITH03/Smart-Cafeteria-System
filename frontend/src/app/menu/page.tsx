@@ -103,7 +103,7 @@ function MenuPageContent() {
 	}
 
 	return (
-		<div className="mx-auto max-w-xl p-4 space-y-6">
+		<div className="mx-auto max-w-sm sm:max-w-xl md:max-w-3xl lg:max-w-5xl xl:max-w-6xl p-4 md:p-6 space-y-6">
 			<header className="flex items-center gap-4">
 				<button
 					onClick={() => {

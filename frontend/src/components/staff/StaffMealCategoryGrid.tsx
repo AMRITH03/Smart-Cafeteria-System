@@ -67,7 +67,7 @@ function StaffMealCategoryCard({ meal }: StaffMealCategoryCardProps) {
 // Skeleton component
 function StaffMealCategoryGridSkeleton() {
 	return (
-		<section className="bg-gradient-to-b from-blue-600 to-blue-700 py-24">
+		<section className="py-8 sm:py-12 lg:py-16">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="mx-auto max-w-6xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
 					{Array.from({ length: 4 }).map((_, i) => (
@@ -139,7 +139,7 @@ export function StaffMealCategoryGrid() {
 
 	if (isError) {
 		return (
-			<section className="bg-gradient-to-b from-blue-600 to-blue-700 py-24">
+			<section className="py-8 sm:py-12 lg:py-16">
 				<div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
 					<p className="text-lg text-white">
 						Unable to load meal categories. Please try again later.
@@ -151,7 +151,7 @@ export function StaffMealCategoryGrid() {
 
 	if (!categories || categories.length === 0) {
 		return (
-			<section className="bg-gradient-to-b from-blue-600 to-blue-700 py-24">
+			<section className="py-8 sm:py-12 lg:py-16">
 				<div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
 					<h2 className="mb-6 text-3xl font-semibold text-white">Manage Meal Slots</h2>
 					<p className="text-lg text-white/80">No meal categories available at this time.</p>
@@ -174,7 +174,7 @@ export function StaffMealCategoryGrid() {
 		<section
 			id="staff-meal-categories"
 			ref={sectionRef}
-			className="relative bg-gradient-to-b from-blue-600 via-blue-600 to-indigo-700 py-16 sm:py-24"
+			className="relative py-8 sm:py-12 lg:py-16"
 		>
 			{/* Decorative elements */}
 			<div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
