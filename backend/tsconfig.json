@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"target": "es2020",
 		"module": "commonjs",
-		"rootDir": "./src",
+		"moduleResolution": "node",
+		"rootDir": ".",
 		"outDir": "./dist",
 		"strict": true,
 		"esModuleInterop": true,
@@ -10,6 +11,6 @@
 		"forceConsistentCasingInFileNames": true,
 		"typeRoots": ["./node_modules/@types", "./src/types"]
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "tests/**/*"],
 	"exclude": ["node_modules"]
 }
