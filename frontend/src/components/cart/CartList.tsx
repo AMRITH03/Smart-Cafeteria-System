@@ -2,12 +2,29 @@
 
 import { useCartStore } from "@/stores/cart.store";
 import { CartItemCard } from "./CartItemCard";
+import { CartItemCardSkeleton } from "./CartItemCardSkeleton";
 import { useRouter } from "next/navigation";
 import { ShoppingBag, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function CartList() {
 	const router = useRouter();
 	const { items, totalAmount, incrementItem, decrementItem, removeItem } = useCartStore();
+	const [isHydrated, setIsHydrated] = useState(false);
+
+	useEffect(() => {
+		setIsHydrated(true);
+	}, []);
+
+	if (!isHydrated) {
+		return (
+			<div className="space-y-4">
+				{Array.from({ length: 3 }).map((_, i) => (
+					<CartItemCardSkeleton key={i} />
+				))}
+			</div>
+		);
+	}
 
 	if (items.length === 0) {
 		return (

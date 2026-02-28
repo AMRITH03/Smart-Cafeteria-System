@@ -24,6 +24,7 @@ export default function BookingConfirmationPage() {
 
 	const [currentStatus, setCurrentStatus] = useState<ConfirmationStatus>("loading");
 	const [bookingRef, setBookingRef] = useState("");
+	const [bookingId, setBookingId] = useState<number | null>(null);
 	const hasFiredRef = useRef(false);
 
 	// Snapshot cart/booking data immediately so store clears don't affect us
@@ -76,6 +77,7 @@ export default function BookingConfirmationPage() {
 				clearCart();
 				resetBooking();
 				setBookingRef(response.data.booking_reference);
+				setBookingId(response.data.booking_id);
 				setCurrentStatus("success");
 			} catch {
 				setCurrentStatus("error");
@@ -182,11 +184,15 @@ export default function BookingConfirmationPage() {
 			);
 		}
 
-		// Redirect to profile after a pause
+		// Redirect to booking details after a pause
 		tl.call(
 			() => {
 				setTimeout(() => {
-					router.replace("/profile?tab=bookings");
+					if (bookingId) {
+						router.replace(`/my-bookings/${bookingId}`);
+					} else {
+						router.replace("/my-bookings");
+					}
 				}, 2000);
 			},
 			[],
