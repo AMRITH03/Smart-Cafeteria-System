@@ -18,7 +18,7 @@ import {
 	updateProfileSchema,
 } from "../validations/auth.schema";
 
-export const testRoute = async (res: Response): Promise<void> => {
+export const testRoute = async (req: Request, res: Response): Promise<void> => {
 	res.send("Backend is running!");
 };
 
