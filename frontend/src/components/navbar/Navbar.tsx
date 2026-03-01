@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/auth.store";
 import { useRole } from "@/hooks/useRole";
 import { ProfileDropdown } from "./ProfileDropdown";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Menu, X } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -15,6 +15,7 @@ export function Navbar() {
 	const { isStaff } = useRole();
 	const pathname = usePathname();
 	const [isScrolled, setIsScrolled] = useState(false);
+	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const navRef = useRef<HTMLElement>(null);
 
 	useGSAP(
@@ -59,7 +60,7 @@ export function Navbar() {
 					{ label: "Explore Menu", href: "/menu" },
 					{ label: "My Bookings", href: "/my-bookings" },
 				]
-		: [];
+		: [{ label: "Explore Menu", href: "/menu" }];
 
 	// Dynamic styling based on background
 	const navBg = isLandingPage
@@ -71,7 +72,7 @@ export function Navbar() {
 	return (
 		<header
 			ref={navRef}
-			className={`w-full z-10 transition-all duration-500 py-3 sm:py-4 px-4 sm:px-6 lg:px-8 bg-transparent`}
+			className={`relative w-full z-[100] transition-all duration-500 py-3 sm:py-4 px-4 sm:px-6 lg:px-8 bg-transparent`}
 		>
 			<nav
 				className={`mx-auto max-w-6xl transition-all duration-500 backdrop-blur-2xl border ${navBg} rounded-2xl`}
@@ -117,8 +118,20 @@ export function Navbar() {
 
 					{/* Right side */}
 					<div className="flex items-center gap-2 sm:gap-4">
-						{!isLoggedIn && (
-							<>
+						{isLoggedIn ? (
+							<div className="flex items-center gap-2 sm:gap-3">
+								{/* Only show "Staff" badge if staff */}
+								{isStaff && (
+									<span className="hidden rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-600 sm:inline-block">
+										Staff
+									</span>
+								)}
+								<div className="relative z-[110]">
+									<ProfileDropdown />
+								</div>
+							</div>
+						) : (
+							<div className="hidden sm:flex items-center gap-2 sm:gap-4">
 								<Link
 									href="/login"
 									className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-blue-600 sm:px-4"
@@ -137,22 +150,63 @@ export function Navbar() {
 									/>
 									<div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-indigo-600 to-blue-600 transition-transform duration-500 group-hover:translate-x-0" />
 								</Link>
-							</>
+							</div>
 						)}
 
-						{isLoggedIn && (
-							<div className="flex items-center gap-2 sm:gap-3">
-								{/* Only show "Staff" badge if staff */}
-								{isStaff && (
-									<span className="hidden rounded-full bg-blue-100 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-600 sm:inline-block">
-										Staff
-									</span>
-								)}
-								<ProfileDropdown />
+						{/* Mobile Menu Toggle */}
+						<button
+							className="md:hidden flex p-2 text-gray-600 hover:text-blue-600 transition-colors z-[120]"
+							onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+							aria-label="Toggle Navigation"
+						>
+							{isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+						</button>
+					</div>
+				</div>
+
+				{/* Mobile Menu Dropdown */}
+				{isMobileMenuOpen && (
+					<div className="md:hidden border-t border-gray-100/50 bg-white/95 backdrop-blur-2xl py-4 flex flex-col rounded-b-2xl shadow-xl w-full">
+						<div className="flex flex-col gap-1 px-4">
+							{navLinks.map((link) => {
+								const isActive = pathname === link.href;
+								return (
+									<Link
+										key={link.href}
+										href={link.href}
+										onClick={() => setIsMobileMenuOpen(false)}
+										className={`block rounded-lg px-4 py-3 text-base font-semibold transition-all duration-300 ${
+											isActive
+												? "bg-blue-50 text-blue-600"
+												: "text-gray-600 hover:bg-gray-50 hover:text-blue-500"
+										}`}
+									>
+										{link.label}
+									</Link>
+								);
+							})}
+						</div>
+
+						{!isLoggedIn && (
+							<div className="flex flex-col gap-3 mt-4 pt-4 px-4 border-t border-gray-100">
+								<Link
+									href="/login"
+									onClick={() => setIsMobileMenuOpen(false)}
+									className="block rounded-lg px-4 py-3 text-center text-base font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 hover:text-blue-600 border border-gray-200"
+								>
+									Login
+								</Link>
+								<Link
+									href="/register"
+									onClick={() => setIsMobileMenuOpen(false)}
+									className="block rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-center text-base font-bold text-white shadow-md transition-all hover:opacity-90"
+								>
+									Sign Up
+								</Link>
 							</div>
 						)}
 					</div>
-				</div>
+				)}
 			</nav>
 		</header>
 	);
