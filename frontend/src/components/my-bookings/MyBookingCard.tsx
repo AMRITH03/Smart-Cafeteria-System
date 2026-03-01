@@ -193,75 +193,96 @@ export function MyBookingCard({
 					router.push(`/my-bookings/${bookingId}`);
 				}
 			}}
-			className="group flex items-stretch rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all cursor-pointer w-full text-left overflow-hidden"
+			className="group relative flex items-stretch rounded-2xl border bg-white shadow-sm hover:shadow-xl transition-all duration-500 cursor-pointer w-full text-left overflow-hidden border-slate-200/60"
 		>
-			{/* Left: content area with View Details hover */}
-			<div className="relative flex-1 p-4 sm:p-5 space-y-2.5 min-w-0 min-h-[116px]">
-				{/* Blue overlay that appears on hover - covers entire left area */}
-				<div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+			{/* PREMIUM OVERLAY: Full-card Mesh Gradient & Glassmorphism */}
+			<div className="absolute inset-0 z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 overflow-hidden pointer-events-none">
+				<div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-500" />
+				<div className="absolute inset-0 backdrop-blur-[6px] bg-white/5" />
+				{/* Decorative glass circle */}
+				<div className="absolute -top-16 -right-16 h-48 w-48 rounded-full bg-white/10 blur-2xl transition-transform duration-1000 group-hover:scale-110" />
+				<div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-indigo-400/20 blur-xl" />
+			</div>
 
-				{/* View Details text - centered, visible on hover */}
-				<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 z-20">
-					<div className="flex items-center gap-2 text-white font-bold">
-						<span className="text-sm sm:text-base">View Details</span>
+			{/* View Details text — centered hover action */}
+			<div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-40 scale-95 group-hover:scale-100 pointer-events-none">
+				<div className="flex flex-col items-center gap-1 text-white">
+					<div className="flex items-center gap-2 font-bold drop-shadow-md">
+						<span className="text-base sm:text-lg">View Details</span>
 						<ArrowRight
 							size={20}
 							className="transition-transform duration-300 group-hover:translate-x-1"
 						/>
 					</div>
+					<span className="text-[10px] uppercase tracking-widest opacity-80 font-medium whitespace-nowrap">
+						Click to manage booking
+					</span>
 				</div>
+			</div>
 
+			{/* Left: main content area */}
+			<div className="relative flex-1 p-4 sm:p-5 space-y-3 min-w-0 min-h-[120px] z-20 transition-all duration-500 group-hover:opacity-20 group-hover:scale-[0.98] group-hover:blur-[2px]">
 				{/* Row 1: Reference + Status badge */}
-				<div className="relative z-0 flex flex-wrap items-center gap-2">
-					<div className="flex items-center gap-1.5 min-w-0">
-						<Hash size={14} className="shrink-0 text-gray-400" />
-						<span className="text-sm font-bold text-gray-900 truncate">{bookingReference}</span>
+				<div className="flex flex-wrap items-center gap-2">
+					<div className="flex items-center gap-1.5 min-w-0 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100 group-hover:bg-white/10 group-hover:border-white/20">
+						<Hash size={13} className="shrink-0 text-slate-400 group-hover:text-blue-200" />
+						<span className="text-[13px] font-bold text-slate-700 truncate group-hover:text-white">
+							{bookingReference}
+						</span>
 					</div>
 					<span
-						className={`shrink-0 ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide leading-tight ${STATUS_STYLES[bookingStatus]}`}
+						className={`shrink-0 ml-auto px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide leading-tight shadow-sm ${STATUS_STYLES[bookingStatus]}`}
 					>
 						{STATUS_LABEL[bookingStatus]}
 					</span>
 				</div>
 
 				{/* Row 2: Details — responsive grid */}
-				<div className="relative z-0 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[13px] text-gray-600">
-					<div className="flex items-center gap-1.5">
-						<Clock size={14} className="shrink-0 text-indigo-400" />
-						<span className="font-medium">{slotName}</span>
+				<div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-slate-600">
+					<div className="flex items-center gap-1.5 bg-indigo-50/50 px-2 py-0.5 rounded-md group-hover:bg-white/5">
+						<Clock size={14} className="shrink-0 text-indigo-500 group-hover:text-indigo-200" />
+						<span className="font-semibold group-hover:text-white">{slotName}</span>
 					</div>
 					<div className="flex items-center gap-1.5">
-						<Calendar size={14} className="shrink-0 text-gray-400" />
-						<span className="font-medium">{formatDate(slotDate)}</span>
+						<Calendar size={14} className="shrink-0 text-slate-400 group-hover:text-blue-200" />
+						<span className="font-medium group-hover:text-white">{formatDate(slotDate)}</span>
 					</div>
 					<div className="flex items-center gap-1.5">
-						<Clock size={14} className="shrink-0 text-blue-400" />
-						<span className="font-medium">{formatTime(startTime)}</span>
+						<Clock size={14} className="shrink-0 text-blue-400 group-hover:text-blue-100" />
+						<span className="font-medium group-hover:text-white">{formatTime(startTime)}</span>
 					</div>
 					<div className="flex items-center gap-1.5">
-						<Users size={14} className="shrink-0 text-gray-400" />
-						<span className="font-medium">
+						<Users size={14} className="shrink-0 text-slate-400 group-hover:text-blue-200" />
+						<span className="font-medium group-hover:text-white">
 							{groupSize} {groupSize === 1 ? "person" : "people"}
 						</span>
 					</div>
-					<div className="flex items-center gap-1 font-bold text-gray-900">
-						<IndianRupee size={13} />
-						{totalAmount.toFixed(2)}
+					<div className="flex items-center gap-1 font-bold text-slate-900 group-hover:text-white ml-auto sm:ml-0">
+						<IndianRupee size={13} className="text-emerald-600 group-hover:text-emerald-300" />
+						<span className="text-sm">{totalAmount.toFixed(2)}</span>
 					</div>
 				</div>
 
-				{/* Row 3: Token badge or pending message - min-height ensures consistent card size */}
-				<div className="relative z-0 min-h-[24px]">
+				{/* Row 3: Token badge or pending message */}
+				<div className="pt-1 border-t border-slate-100 group-hover:border-white/10">
 					{bookingStatus === "pending_payment" ? (
-						<span className="text-xs text-gray-400 italic">Token generation pending</span>
+						<div className="flex items-center gap-1.5 text-[11px] text-slate-400 italic">
+							<div className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
+							Token generation pending
+						</div>
 					) : (
-						<BookingTokenBadge bookingReference={bookingReference} bookingStatus={bookingStatus} />
+						<div className="group-hover:brightness-110 group-hover:contrast-125 transition-all">
+							<BookingTokenBadge
+								bookingReference={bookingReference}
+								bookingStatus={bookingStatus}
+							/>
+						</div>
 					)}
 				</div>
 			</div>
 
-			{/* Right: Action button — vertically centered, fixed width */}
-			<div className="flex items-center justify-center px-3 sm:px-5 border-l bg-gray-50/60 shrink-0 min-w-[140px]">
+			{/* Right: Action button — vertically centered */}
+			<div className="flex items-center justify-center px-4 sm:px-6 border-l border-slate-100 bg-slate-50/40 shrink-0 min-w-[150px] z-30 transition-all duration-500 group-hover:bg-white/5 group-hover:border-white/10">
 				<button
 					type="button"
 					disabled={btn.disabled || isSettling}

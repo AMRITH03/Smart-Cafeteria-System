@@ -16,12 +16,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
-		<html lang="en">
-			<body>
+		<html lang="en" className="h-full">
+			<body className={`${inter.className} h-full overflow-hidden`}>
 				<ReactQueryProvider>
 					<Toaster position="top-right" richColors closeButton />
-					<Navbar />
-					<main className="pt-24">{children}</main>
+					<div className="flex flex-col h-full bg-slate-50">
+						<Navbar />
+						<main id="main-content" className="flex-1 overflow-y-auto w-full">
+							{children}
+						</main>
+					</div>
 				</ReactQueryProvider>
 			</body>
 		</html>

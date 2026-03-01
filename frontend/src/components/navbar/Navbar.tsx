@@ -30,11 +30,14 @@ export function Navbar() {
 	);
 
 	useEffect(() => {
+		const scrollContainer = document.getElementById("main-content");
+		if (!scrollContainer) return;
+
 		const handleScroll = () => {
-			setIsScrolled(window.scrollY > 20);
+			setIsScrolled(scrollContainer.scrollTop > 20);
 		};
-		window.addEventListener("scroll", handleScroll);
-		return () => window.removeEventListener("scroll", handleScroll);
+		scrollContainer.addEventListener("scroll", handleScroll);
+		return () => scrollContainer.removeEventListener("scroll", handleScroll);
 	}, []);
 
 	// Prevent flicker before Zustand rehydrates
@@ -63,16 +66,12 @@ export function Navbar() {
 		? isScrolled
 			? "bg-white/90 border-white/40 shadow-xl shadow-black/5"
 			: "bg-white/70 border-white/20 shadow-lg shadow-black/5"
-		: isScrolled
-			? "bg-white/95 border-gray-200/60 shadow-2xl shadow-blue-900/10"
-			: "bg-blue-100/90 border-blue-200/50 shadow-xl shadow-blue-900/10";
+		: "bg-blue-100/95 border-blue-200/60 shadow-xl shadow-blue-900/10";
 
 	return (
 		<header
 			ref={navRef}
-			className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-				isScrolled ? "pt-2 sm:pt-3" : "pt-4 sm:pt-6"
-			} px-4 sm:px-6 lg:px-8`}
+			className={`w-full z-10 transition-all duration-500 py-3 sm:py-4 px-4 sm:px-6 lg:px-8 bg-transparent`}
 		>
 			<nav
 				className={`mx-auto max-w-6xl transition-all duration-500 backdrop-blur-2xl border ${navBg} rounded-2xl`}

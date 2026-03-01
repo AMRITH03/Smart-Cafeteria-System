@@ -45,7 +45,7 @@ export function LandingHero(_props: LandingHeroProps) {
 	return (
 		<section
 			ref={containerRef}
-			className="relative -mt-24 min-h-screen overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 pt-24 text-white"
+			className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 text-white"
 		>
 			{/* RANDOM FLOATING ICONS */}
 			<FloatingFoodIcons />
