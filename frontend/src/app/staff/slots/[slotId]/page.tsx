@@ -49,9 +49,9 @@ function CounterTab({ counter, isSelected, onSelect }: CounterTabProps) {
 			disabled={!isActive}
 			className={`flex-shrink-0 px-4 py-3 rounded-xl border-2 transition-all min-w-[140px] ${
 				isSelected
-					? "border-blue-500 bg-blue-50 shadow-md"
+					? "border-[var(--color-primary)] bg-[var(--color-primary)] shadow-md"
 					: isActive
-						? "border-gray-200 bg-white hover:border-blue-200 hover:bg-blue-50/50"
+						? "border-gray-200 bg-white hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/50"
 						: "border-gray-200 bg-gray-100 cursor-not-allowed opacity-60"
 			}`}
 		>
@@ -59,7 +59,7 @@ function CounterTab({ counter, isSelected, onSelect }: CounterTabProps) {
 				<div className="flex items-center justify-center gap-2">
 					<span className={`w-2 h-2 rounded-full ${isActive ? "bg-green-500" : "bg-gray-400"}`} />
 					<span
-						className={`font-semibold text-sm ${isSelected ? "text-blue-700" : "text-gray-900"}`}
+						className={`font-semibold text-sm ${isSelected ? "text-[var(--color-primary)]" : "text-gray-900"}`}
 					>
 						{counter.counter_name}
 					</span>
@@ -281,7 +281,7 @@ export default function StaffSlotDetailPage() {
 			{/* Counter Tabs Section */}
 			<section className="mb-8">
 				<h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-					<Users size={20} className="text-blue-600" />
+					<Users size={20} className="text-[var(--color-primary)]" />
 					Service Counters
 				</h2>
 
@@ -327,7 +327,7 @@ export default function StaffSlotDetailPage() {
 					{/* Action Buttons Row */}
 					<div className="flex items-center justify-between mb-4">
 						<h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-							<Clock size={20} className="text-blue-600" />
+							<Clock size={20} className="text-[var(--color-primary)]" />
 							{selectedCounter?.counter_name} - Token Service
 						</h2>
 
@@ -383,7 +383,7 @@ export default function StaffSlotDetailPage() {
 								<button
 									onClick={handleCallNextToken}
 									disabled={callNextTokenMutation.isPending}
-									className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 disabled:opacity-50"
+									className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-primary)] text-white rounded-xl font-bold text-lg hover:bg-[var(--color-primary)] transition-colors shadow-lg shadow-blue-500/25 disabled:opacity-50"
 								>
 									{callNextTokenMutation.isPending ? (
 										<div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
@@ -415,8 +415,8 @@ export default function StaffSlotDetailPage() {
 
 			{/* Prompt to select counter */}
 			{!selectedCounterId && !countersLoading && counters.length > 0 && (
-				<div className="text-center py-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-dashed border-blue-200">
-					<div className="text-blue-300 mb-4">
+				<div className="text-center py-12 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] rounded-xl border-2 border-dashed border-[var(--color-primary)]">
+					<div className="text-[var(--color-primary)] mb-4">
 						<Users size={48} className="mx-auto" />
 					</div>
 					<h3 className="text-lg font-semibold text-gray-900 mb-2">Select a Counter</h3>

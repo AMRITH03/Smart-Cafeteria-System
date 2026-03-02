@@ -23,7 +23,7 @@ export function MenuItemRow({
 			type="button"
 			className={`flex items-center gap-3 p-3 border rounded-xl transition-colors cursor-pointer w-full text-left ${
 				isSelected
-					? "border-blue-400 bg-blue-50/60"
+					? "border-[var(--color-primary)] bg-[var(--color-primary)]"
 					: "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
 			}`}
 			onClick={() => onToggle(item.menu_item_id)}
@@ -34,7 +34,7 @@ export function MenuItemRow({
 				checked={isSelected}
 				onChange={() => onToggle(item.menu_item_id)}
 				onClick={(e) => e.stopPropagation()}
-				className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 flex-shrink-0"
+				className="h-4 w-4 rounded border-gray-300 text-[var(--color-primary)] focus:ring-blue-500 flex-shrink-0"
 			/>
 
 			{/* Image */}
@@ -81,7 +81,7 @@ export function MenuItemRow({
 						onChange={(e) =>
 							onQuantityChange(item.menu_item_id, Math.max(1, parseInt(e.target.value, 10) || 1))
 						}
-						className="w-16 h-8 text-sm text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+						className="w-16 h-8 text-sm text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-[var(--color-primary)] outline-none"
 					/>
 				</div>
 			)}

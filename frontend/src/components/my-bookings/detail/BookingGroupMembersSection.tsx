@@ -96,7 +96,7 @@ export function BookingGroupMembersSection({ bookingId, groupMembers, isEditable
 						<button
 							onClick={handleSave}
 							disabled={isUpdating}
-							className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-colors disabled:opacity-50"
+							className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-[var(--color-primary)] hover:bg-[var(--color-primary)]/90 transition-colors disabled:opacity-50"
 						>
 							{isUpdating ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
 							Update

@@ -27,7 +27,7 @@ export function BookingPaymentsTable() {
 		<section className="bg-white rounded-xl shadow overflow-hidden">
 			{/* Section Header */}
 			<div className="flex items-center gap-3 px-4 py-4 sm:px-6 border-b bg-gray-50">
-				<div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+				<div className="p-2 bg-[var(--color-primary)] text-[var(--color-primary)] rounded-lg">
 					<CreditCard size={20} />
 				</div>
 				<h2 className="text-lg font-semibold text-gray-900">Booking Payments</h2>

@@ -77,7 +77,7 @@ export function MenuItemCard({ item, quantity, onIncrement, onDecrement }: Props
 					) : (
 						<button
 							onClick={() => onIncrement(itemId)}
-							className="flex items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-blue-700 active:scale-95"
+							className="flex items-center gap-1 rounded-lg bg-[var(--color-primary)] px-3 py-1.5 text-xs font-bold text-white transition-all hover:bg-[var(--color-primary)]/90 active:scale-95"
 						>
 							<Plus size={14} /> Add
 						</button>

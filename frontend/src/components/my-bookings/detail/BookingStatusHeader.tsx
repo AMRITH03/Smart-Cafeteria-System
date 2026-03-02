@@ -94,7 +94,8 @@ function getButtonState(
 }
 
 const BUTTON_VARIANT_STYLES: Record<ButtonState["variant"], string> = {
-	primary: "bg-blue-600 text-white hover:bg-blue-700 shadow-sm shadow-blue-200",
+	primary:
+		"bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90 shadow-sm shadow-[var(--color-primary)]/25",
 	success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm shadow-emerald-200",
 	warning: "bg-amber-500 text-white hover:bg-amber-600 shadow-sm shadow-amber-200",
 	muted: "bg-gray-100 text-gray-400 cursor-not-allowed",

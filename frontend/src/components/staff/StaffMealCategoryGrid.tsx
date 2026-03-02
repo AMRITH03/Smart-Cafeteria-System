@@ -38,14 +38,14 @@ function StaffMealCategoryCard({ meal }: StaffMealCategoryCardProps) {
 					/>
 				</div>
 
-				<h3 className="mb-2 text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-blue-600 sm:text-xl">
+				<h3 className="mb-2 text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-[var(--color-primary)] sm:text-xl">
 					{meal.title}
 				</h3>
 
 				<p className="text-sm leading-relaxed text-gray-500 sm:text-base">{meal.caption}</p>
 
 				{/* Arrow indicator */}
-				<div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-500 opacity-0 transition-all duration-300 group-hover:opacity-100">
+				<div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] opacity-0 transition-all duration-300 group-hover:opacity-100">
 					<span>Manage Slots</span>
 					<svg
 						aria-hidden="true"

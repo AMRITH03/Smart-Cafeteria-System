@@ -36,7 +36,7 @@ function SlotsPageContent() {
 				<p className="text-gray-600">Please select a meal category first.</p>
 				<button
 					onClick={() => router.push("/")}
-					className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold"
+					className="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold"
 				>
 					Back to Home
 				</button>

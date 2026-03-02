@@ -25,7 +25,7 @@ import {
 const WEATHER_OPTIONS = [
 	{ value: "sunny", label: "Sunny", icon: Sun, color: "text-amber-500" },
 	{ value: "cloudy", label: "Cloudy", icon: Cloud, color: "text-gray-500" },
-	{ value: "rainy", label: "Rainy", icon: CloudRain, color: "text-blue-500" },
+	{ value: "rainy", label: "Rainy", icon: CloudRain, color: "text-[var(--color-primary)]" },
 	{ value: "hot", label: "Hot", icon: Thermometer, color: "text-red-500" },
 	{ value: "cold", label: "Cold", icon: Snowflake, color: "text-cyan-500" },
 ] as const;
@@ -192,7 +192,7 @@ interface PredictionCardProps {
 function PredictionCard({ prediction }: PredictionCardProps) {
 	const getConfidenceColor = (confidence: number) => {
 		if (confidence >= 90) return "text-emerald-600 bg-emerald-50";
-		if (confidence >= 80) return "text-blue-600 bg-blue-50";
+		if (confidence >= 80) return "text-[var(--color-primary)] bg-[var(--color-primary)]";
 		if (confidence >= 70) return "text-amber-600 bg-amber-50";
 		return "text-gray-600 bg-gray-50";
 	};
@@ -236,11 +236,11 @@ function SlotCard({ slot }: SlotCardProps) {
 			case "breakfast":
 				return "from-amber-500 to-orange-500";
 			case "lunch":
-				return "from-blue-500 to-indigo-500";
+				return "from-[var(--color-primary)] to-[var(--color-secondary)]";
 			case "snacks":
 				return "from-purple-500 to-pink-500";
 			case "dinner":
-				return "from-indigo-600 to-purple-600";
+				return "from-[var(--color-secondary)] to-purple-600";
 			default:
 				return "from-gray-500 to-gray-600";
 		}
@@ -268,7 +268,7 @@ function SlotCard({ slot }: SlotCardProps) {
 				</div>
 				<div className="flex items-center gap-4">
 					<div className="text-right hidden sm:block">
-						<div className="flex items-center gap-1 text-blue-600">
+						<div className="flex items-center gap-1 text-[var(--color-primary)]">
 							<Users size={16} />
 							<span className="font-semibold">{slot.expected_footfall}</span>
 						</div>
@@ -288,7 +288,7 @@ function SlotCard({ slot }: SlotCardProps) {
 						<p className="text-sm font-medium text-gray-600">
 							{slot.predictions.length} items predicted
 						</p>
-						<div className="flex items-center gap-1 text-sm text-blue-600 sm:hidden">
+						<div className="flex items-center gap-1 text-sm text-[var(--color-primary)] sm:hidden">
 							<Users size={14} />
 							<span className="font-medium">{slot.expected_footfall} expected</span>
 						</div>
@@ -519,7 +519,9 @@ export default function ForecastPage() {
 								</div>
 								<div className="bg-white rounded-xl border p-4">
 									<p className="text-sm text-gray-500 mb-1">Total Servings</p>
-									<p className="text-2xl font-bold text-blue-600">{totalPredictedServings}</p>
+									<p className="text-2xl font-bold text-[var(--color-primary)]">
+										{totalPredictedServings}
+									</p>
 								</div>
 								<div className="bg-white rounded-xl border p-4 col-span-2 sm:col-span-1">
 									<p className="text-sm text-gray-500 mb-1">Meal Slots</p>

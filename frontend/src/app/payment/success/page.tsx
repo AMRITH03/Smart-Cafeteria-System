@@ -51,7 +51,7 @@ export default function PaymentSuccessPage() {
 			<div className="mt-6 flex w-full flex-col gap-3">
 				<button
 					onClick={() => router.push("/bookings")}
-					className="rounded-lg bg-blue-600 py-3 font-medium text-white"
+					className="rounded-lg bg-orange-500 py-3 font-medium text-white"
 				>
 					View My Bookings
 				</button>

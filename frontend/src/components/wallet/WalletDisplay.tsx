@@ -51,7 +51,7 @@ export function WalletDisplay({ balance, currency, onTopUp, isTopUpPending }: Pr
 	return (
 		<div className="space-y-6 p-4">
 			{/* Balance Card */}
-			<div className="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-6 text-white shadow-xl shadow-blue-100 flex flex-col gap-4">
+			<div className="bg-gradient-to-br from-orange-400 to-orange-600 rounded-3xl p-6 text-white shadow-xl shadow-orange-100 flex flex-col gap-4">
 				<div className="flex items-center justify-between">
 					<span className="text-sm font-medium opacity-80 uppercase tracking-widest">
 						Available Balance
@@ -67,7 +67,7 @@ export function WalletDisplay({ balance, currency, onTopUp, isTopUpPending }: Pr
 			{/* Add Money Section */}
 			<div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-4">
 				<div className="flex items-center gap-2">
-					<Plus size={20} className="text-blue-600" />
+					<Plus size={20} className="text-orange-500" />
 					<span className="font-bold text-gray-800">Add Money to Wallet</span>
 				</div>
 
@@ -80,8 +80,8 @@ export function WalletDisplay({ balance, currency, onTopUp, isTopUpPending }: Pr
 							onClick={() => handlePresetClick(amt)}
 							className={`py-2 rounded-xl text-sm font-bold border-2 transition-all ${
 								selectedPreset === amt
-									? "bg-blue-600 text-white border-blue-600"
-									: "bg-white text-gray-600 border-gray-100 hover:border-blue-100"
+									? "bg-orange-500 text-white border-orange-500"
+									: "bg-white text-gray-600 border-gray-100 hover:border-orange-100"
 							}`}
 						>
 							₹{amt}
@@ -106,8 +106,8 @@ export function WalletDisplay({ balance, currency, onTopUp, isTopUpPending }: Pr
 								isCustomMode && customAmount
 									? customError
 										? "border-red-400 bg-red-50 text-red-700"
-										: "border-blue-600 bg-blue-50 text-blue-700"
-									: "border-gray-100 bg-white text-gray-700 hover:border-blue-100 focus:border-blue-600 focus:bg-blue-50"
+										: "border-orange-400 bg-orange-50 text-orange-700"
+									: "border-gray-100 bg-white text-gray-700 hover:border-orange-100 focus:border-orange-400 focus:bg-orange-50"
 							}`}
 						/>
 					</div>
@@ -121,7 +121,7 @@ export function WalletDisplay({ balance, currency, onTopUp, isTopUpPending }: Pr
 				<button
 					disabled={isTopUpPending || !isValid}
 					onClick={() => onTopUp(effectiveAmount)}
-					className="w-full bg-white text-blue-600 border-2 border-blue-600 py-3 rounded-xl font-black text-sm uppercase tracking-tight hover:bg-blue-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+					className="w-full bg-white text-orange-500 border-2 border-orange-500 py-3 rounded-xl font-black text-sm uppercase tracking-tight hover:bg-orange-50 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{isTopUpPending ? "Processing..." : `Top up ₹${effectiveAmount || "–"}`}
 				</button>

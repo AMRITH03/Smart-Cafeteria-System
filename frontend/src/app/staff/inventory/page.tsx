@@ -159,7 +159,7 @@ function InventoryRow({ ingredient, onRestock }: InventoryRowProps) {
 			{/* Name & Supplier */}
 			<td className="px-4 py-4 sm:px-6">
 				<div className="flex items-center gap-3">
-					<div className="hidden sm:flex w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 items-center justify-center text-white font-bold text-sm shrink-0">
+					<div className="hidden sm:flex w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary)] itemscenter justify-center text-white font-bold text-sm shrink-0">
 						{ingredient.ingredient_name.charAt(0)}
 					</div>
 					<div className="min-w-0">
@@ -227,7 +227,7 @@ function InventoryRow({ ingredient, onRestock }: InventoryRowProps) {
 			<td className="px-4 py-4 sm:px-6">
 				<button
 					onClick={() => onRestock(ingredient.ingredient_id)}
-					className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+					className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--color-primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--color-primary)] transition-colors"
 				>
 					<RefreshCw size={14} />
 					<span className="hidden sm:inline">Restock</span>
@@ -453,7 +453,7 @@ export default function InventoryPage() {
 					</button>
 
 					{/* Add Item Button */}
-					<button className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 shrink-0">
+					<button className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-primary)] transition-colors shadow-lg shadow-blue-500/25 shrink-0">
 						<Plus size={18} />
 						<span className="hidden sm:inline">Add Ingredient</span>
 						<span className="sm:hidden">Add</span>

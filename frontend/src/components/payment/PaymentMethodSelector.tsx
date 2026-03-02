@@ -38,7 +38,7 @@ export function PaymentMethodSelector({
 							className={`rounded-lg border px-4 py-3 text-sm font-medium transition
                 ${
 									isSelected
-										? "border-blue-600 bg-blue-50 text-blue-700"
+										? "border-orange-500 bg-orange-50 text-orange-600"
 										: "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
 								}
                 ${disabled ? "cursor-not-allowed opacity-50" : ""}

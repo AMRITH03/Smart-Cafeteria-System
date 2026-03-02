@@ -31,7 +31,7 @@ const INFO_CARDS = [
 		title: "Pre-book Meals",
 		description:
 			"Plan your meals in advance and skip long queues. Smart pre-booking ensures availability and saves your valuable time.",
-		gradient: "from-blue-500 to-indigo-500",
+		gradient: "from-[var(--color-primary)] to-[var(--color-secondary)]",
 	},
 	{
 		icon: (
@@ -130,8 +130,8 @@ export function LandingInfo() {
 			className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white py-24 sm:py-32"
 		>
 			{/* Decorative background elements */}
-			<div className="absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-blue-100/50 blur-3xl" />
-			<div className="absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-indigo-100/50 blur-3xl" />
+			<div className="absolute -left-32 top-1/4 h-96 w-96 rounded-full bg-[var(--color-primary)]/50 blur-3xl" />
+			<div className="absolute -right-32 bottom-1/4 h-96 w-96 rounded-full bg-[var(--color-secondary)]/50 blur-3xl" />
 
 			<div className="container relative mx-auto px-4 sm:px-6 lg:px-8">
 				<h2
@@ -139,7 +139,7 @@ export function LandingInfo() {
 					className="mb-16 text-center text-3xl font-bold text-gray-900 opacity-0 sm:text-4xl lg:text-5xl"
 				>
 					Why{" "}
-					<span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+					<span className="bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] bg-clip-text text-transparent">
 						Smart Cafeteria
 					</span>
 					?
@@ -163,7 +163,7 @@ export function LandingInfo() {
 								{card.icon}
 							</div>
 
-							<h3 className="mb-4 text-xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-blue-600">
+							<h3 className="mb-4 text-xl font-bold text-gray-900 transition-colors duration-300 group-hover:text-[var(--color-primary)]">
 								{card.title}
 							</h3>
 

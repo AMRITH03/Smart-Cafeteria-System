@@ -28,7 +28,15 @@ export function SlotList() {
 	};
 
 	// Get all active slots (including those that might be full for display)
-	const activeSlots = slots?.filter((slot) => slot.is_active) ?? [];
+	const now = new Date();
+
+	const activeSlots =
+		slots?.filter((slot) => {
+			if (!slot.is_active) return false;
+
+			const slotEnd = new Date(`${slot.slot_date}T${slot.end_time}`);
+			return slotEnd > now;
+		}) ?? [];
 	// Get today's date from the first slot if available
 	const slotDate = activeSlots[0]?.slot_date;
 
@@ -76,7 +84,7 @@ export function SlotList() {
 			<button
 				onClick={handleContinue}
 				disabled={!slotId}
-				className="w-full rounded-2xl bg-blue-600 p-4 font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 disabled:opacity-50 disabled:bg-gray-400 active:scale-[0.98]"
+				className="w-full rounded-2xl bg-[var(--color-primary)] p-4 font-bold text-white shadow-lg shadow-[var(--color-primary)]/25 transition-all hover:bg-[var(--color-primary)]/90 disabled:opacity-50 disabled:bg-gray-400 active:scale-[0.98]"
 			>
 				Confirm Slot & Choose Meal
 			</button>

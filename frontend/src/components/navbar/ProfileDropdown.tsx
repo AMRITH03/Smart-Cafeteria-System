@@ -48,10 +48,10 @@ export function ProfileDropdown() {
 		<div className="relative" ref={dropdownRef}>
 			<button
 				onClick={() => setIsOpen(!isOpen)}
-				className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-blue-100 bg-white text-blue-600 hover:border-blue-200 hover:bg-blue-50 transition-all shadow-sm overflow-hidden"
+				className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-orange-100 bg-white text-orange-500 hover:border-orange-200 hover:bg-orange-50 transition-all shadow-sm overflow-hidden"
 				aria-label="User menu"
 			>
-				<div className="flex h-full w-full items-center justify-center bg-blue-50">
+				<div className="flex h-full w-full items-center justify-center bg-orange-50">
 					<User size={20} />
 				</div>
 			</button>
@@ -64,7 +64,7 @@ export function ProfileDropdown() {
 
 					<Link
 						href="/profile"
-						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+						className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
 						onClick={() => setIsOpen(false)}
 					>
 						<User size={18} />
@@ -81,7 +81,7 @@ export function ProfileDropdown() {
 						<>
 							<Link
 								href="/staff/inventory"
-								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
 								onClick={() => setIsOpen(false)}
 							>
 								<Package size={18} />
@@ -90,7 +90,7 @@ export function ProfileDropdown() {
 
 							<Link
 								href="/staff/forecast"
-								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
 								onClick={() => setIsOpen(false)}
 							>
 								<BarChart3 size={18} />
@@ -101,7 +101,7 @@ export function ProfileDropdown() {
 						<>
 							<Link
 								href="/my-bookings"
-								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
 								onClick={() => setIsOpen(false)}
 							>
 								<BookCheck size={18} />
@@ -110,7 +110,7 @@ export function ProfileDropdown() {
 
 							<Link
 								href="/transaction-history"
-								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
 								onClick={() => setIsOpen(false)}
 							>
 								<ReceiptText size={18} />

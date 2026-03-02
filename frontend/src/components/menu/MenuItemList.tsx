@@ -130,7 +130,7 @@ export function MenuItemList() {
 						<SlidersHorizontal size={16} />
 						<span>Filters</span>
 						{activeFilterCount > 0 && (
-							<span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+							<span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-primary)] text-[10px] font-bold text-white">
 								{activeFilterCount}
 							</span>
 						)}
@@ -266,7 +266,7 @@ export function MenuItemList() {
 				<div className="fixed bottom-6 left-4 right-4 z-50 max-w-3xl mx-auto">
 					<button
 						onClick={() => router.push("/checkout")}
-						className="flex w-full items-center justify-between rounded-2xl bg-blue-600 p-4 text-white shadow-2xl shadow-blue-300 transition-all hover:bg-blue-700 active:scale-[0.98]"
+						className="flex w-full items-center justify-between rounded-2xl bg-[var(--color-primary)] p-4 text-white shadow-2xl shadow-[var(--color-primary)]/30 transition-all hover:bg-[var(--color-primary)]/90 active:scale-[0.98]"
 					>
 						<div className="flex items-center gap-3">
 							<div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">

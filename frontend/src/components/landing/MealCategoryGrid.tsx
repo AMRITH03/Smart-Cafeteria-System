@@ -24,14 +24,14 @@ function MealCategoryCard({ meal }: MealCategoryCardProps) {
 	return (
 		<Link
 			href={meal.href}
-			className="meal-card group relative overflow-hidden rounded-3xl bg-white p-6 text-center shadow-lg shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 sm:p-8"
+			className="meal-card group relative overflow-hidden rounded-3xl bg-white p-6 text-center shadow-lg shadow-[var(--color-primary)]/10 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 sm:p-8"
 		>
 			{/* Gradient overlay on hover */}
-			<div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+			<div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
 			<div className="relative">
 				<div className="relative mx-auto mb-6 h-28 w-28 sm:h-32 sm:w-32">
-					<div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+					<div className="absolute inset-0 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-secondary)] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 					<Image
 						src={meal.image}
 						alt={meal.title}
@@ -40,14 +40,14 @@ function MealCategoryCard({ meal }: MealCategoryCardProps) {
 					/>
 				</div>
 
-				<h3 className="mb-2 text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-blue-600 sm:text-xl">
+				<h3 className="mb-2 text-lg font-bold text-gray-800 transition-colors duration-300 group-hover:text-[var(--color-primary)] sm:text-xl">
 					{meal.title}
 				</h3>
 
 				<p className="text-sm leading-relaxed text-gray-500 sm:text-base">{meal.caption}</p>
 
 				{/* Arrow indicator */}
-				<div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-blue-500 opacity-0 transition-all duration-300 group-hover:opacity-100">
+				<div className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-[var(--color-primary)] opacity-0 transition-all duration-300 group-hover:opacity-100">
 					<span>View Menu</span>
 					<svg
 						aria-hidden="true"
@@ -158,20 +158,17 @@ export function MealCategoryGrid() {
 		<section
 			id="meal-categories"
 			ref={sectionRef}
-			className="relative bg-gradient-to-b from-blue-600 via-blue-600 to-indigo-700 py-24 sm:py-32"
+			className="relative bg-gradient-to-b from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-secondary)] pt-8 pb-24 sm:pt-12 sm:pb-32"
 		>
 			{/* Decorative elements */}
 			<div className="absolute left-1/2 top-0 h-px w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 
-			<div className="container mx-auto px-4 sm:px-6 lg:px-8">
+			<div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-4">
 				<h2
 					ref={headingRef}
-					className="mb-14 text-center text-3xl font-bold text-white opacity-0 sm:mb-16 sm:text-4xl lg:text-5xl"
+					className="mb-4 text-center text-4xl font-bold text-white opacity-0 sm:mb-6 sm:text-5xl lg:text-6xl"
 				>
-					Explore Our{" "}
-					<span className="bg-gradient-to-r from-blue-200 to-white bg-clip-text text-transparent">
-						Delicious Meals
-					</span>
+					Explore Our <span className="text-white">Delicious Meals</span>
 				</h2>
 
 				<div ref={gridRef} className={`mx-auto grid ${gridCols} gap-6 sm:gap-8`}>

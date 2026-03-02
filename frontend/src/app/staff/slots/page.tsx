@@ -43,7 +43,7 @@ function StaffSlotsPageContent() {
 				{/* Create Slot Button */}
 				<button
 					onClick={() => setIsCreateModalOpen(true)}
-					className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25"
+					className="flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] text-white rounded-xl font-semibold hover:bg-[var(--color-primary)] transition-colors shadow-lg shadow-blue-500/25"
 				>
 					<Plus size={20} />
 					<span className="hidden sm:inline">Create Slot</span>

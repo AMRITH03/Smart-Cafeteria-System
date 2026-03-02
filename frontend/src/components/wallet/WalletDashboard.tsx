@@ -29,7 +29,7 @@ export function WalletDashboard() {
 	if (isLoading) {
 		return (
 			<div className="flex flex-col items-center justify-center p-12">
-				<Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
+				<Loader2 className="animate-spin text-[var(--color-primary)] mb-4" size={32} />
 				<p className="text-gray-500 font-medium">Syncing your wallet...</p>
 			</div>
 		);

@@ -36,7 +36,7 @@ function TopUpCheckoutContent() {
 				</div>
 			</header>
 
-			<div className="rounded-3xl bg-white min-h-[600px] overflow-hidden shadow-xl shadow-blue-50/50">
+			<div className="rounded-3xl bg-white min-h-[600px] overflow-hidden shadow-xl shadow-[var(--color-primary)]/50">
 				<EmbeddedCheckoutProvider stripe={stripePromise} options={options}>
 					<EmbeddedCheckout />
 				</EmbeddedCheckoutProvider>

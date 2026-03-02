@@ -125,7 +125,7 @@ export default function ProfilePage() {
 				<p className="text-red-500 font-medium">Failed to load profile. Please try again.</p>
 				<button
 					onClick={() => router.push("/login")}
-					className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+					className="px-6 py-3 bg-[var(--color-primary)] text-white rounded-2xl font-bold shadow-lg hover:bg-[var(--color-primary)] transition-all"
 				>
 					Return to Login
 				</button>
@@ -152,13 +152,13 @@ export default function ProfilePage() {
 			) : profile ? (
 				<div className="relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm border">
 					{/* Decorative background */}
-					<div className="absolute top-0 right-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-blue-50 opacity-50" />
+					<div className="absolute top-0 right-0 -mr-16 -mt-16 h-32 w-32 rounded-full bg-[var(--color-primary)] opacity-30 pointer-events-none" />
 
 					<div className="relative">
 						{/* Top row: avatar + name + edit button */}
 						<div className="flex items-start justify-between gap-4">
 							<div className="flex items-center gap-4">
-								<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-200">
+								<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary)] text-white shadow-lg shadow-blue-200">
 									<User size={32} />
 								</div>
 								<div>
@@ -213,11 +213,8 @@ export default function ProfilePage() {
 							<button
 								type="button"
 								onClick={handleEditToggle}
-								className={`shrink-0 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${
-									isEditing
-										? "bg-gray-100 text-gray-600 hover:bg-gray-200"
-										: "bg-blue-50 text-blue-600 hover:bg-blue-100"
-								}`}
+								className={`absolute top-4 right-4 flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors z-10 bg-[var(--color-primary)] text-white shadow-md hover:bg-[var(--color-primary-dark)] hover:shadow-lg`}
+								title="Edit Profile"
 							>
 								{isEditing ? (
 									<>
@@ -301,7 +298,7 @@ export default function ProfilePage() {
 									<button
 										type="submit"
 										disabled={updateProfileMutation.isPending}
-										className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+										className="flex w-full sm:w-auto items-centerjustify-center gap-2 rounded-xl bg-[var(--color-primary)] px-6 py-3 font-bold text-white hover:bg-[var(--color-primary)] transition-colors disabled:opacity-50"
 									>
 										<Save size={18} />
 										{updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
@@ -321,7 +318,7 @@ export default function ProfilePage() {
 						className="flex w-full items-center justify-between p-4 hover:bg-gray-50 transition-colors"
 					>
 						<div className="flex items-center gap-3">
-							<div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+							<div className="p-2 bg-[var(--color-secondary)] text-[var(--color-secondary)] rounded-lg">
 								<Wallet size={20} />
 							</div>
 							<span className="font-semibold text-gray-900">Personal Wallet</span>
