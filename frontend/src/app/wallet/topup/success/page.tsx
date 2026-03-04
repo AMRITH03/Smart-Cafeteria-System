@@ -40,7 +40,7 @@ function SuccessContent() {
 	if (isStatusLoading || isConfirming) {
 		return (
 			<div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center space-y-6">
-				<Loader2 className="animate-spin text-blue-600" size={48} />
+				<Loader2 className="animate-spin text-orange-500" size={48} />
 				<div className="space-y-2">
 					<h1 className="text-2xl font-black text-gray-900">Verifying Payment...</h1>
 					<p className="text-gray-500 font-medium">
@@ -90,7 +90,7 @@ function SuccessContent() {
 				</div>
 				<button
 					onClick={() => router.push("/profile")}
-					className="w-full flex items-center justify-center gap-2 rounded-2xl bg-blue-600 p-5 text-lg font-bold text-white shadow-xl shadow-blue-100 transition-all hover:bg-blue-700 active:scale-95"
+					className="w-full flex items-center justify-center gap-2 rounded-2xl bg-orange-500 p-5 text-lg font-bold text-white shadow-xl shadow-orange-100 transition-all hover:bg-orange-600 active:scale-95"
 				>
 					Back to Profile <ArrowRight size={20} />
 				</button>
@@ -114,7 +114,7 @@ function SuccessContent() {
 
 			<button
 				onClick={() => router.push("/profile")}
-				className="w-full flex items-center justify-center gap-2 rounded-2xl bg-blue-600 p-5 text-lg font-bold text-white shadow-xl shadow-blue-100 transition-all hover:bg-blue-700 active:scale-95"
+				className="w-full flex items-center justify-center gap-2 rounded-2xl bg-orange-500 p-5 text-lg font-bold text-white shadow-xl shadow-orange-100 transition-all hover:bg-orange-600 active:scale-95"
 			>
 				Back to Profile <ArrowRight size={20} />
 			</button>

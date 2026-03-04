@@ -79,7 +79,7 @@ export function EditProfileForm({
 						id="firstName"
 						type="text"
 						{...register("first_name")}
-						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-orange-400 focus:outline-none"
 						disabled={isLoading}
 					/>
 					{errors.first_name && (
@@ -95,7 +95,7 @@ export function EditProfileForm({
 						id="lastName"
 						type="text"
 						{...register("last_name")}
-						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-orange-400 focus:outline-none"
 						disabled={isLoading}
 					/>
 					{errors.last_name && (
@@ -112,7 +112,7 @@ export function EditProfileForm({
 						type="tel"
 						{...register("mobile")}
 						placeholder="10-digit mobile number"
-						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-orange-400 focus:outline-none"
 						disabled={isLoading}
 					/>
 					{errors.mobile && <p className="text-xs text-red-500">{String(errors.mobile.message)}</p>}
@@ -127,7 +127,7 @@ export function EditProfileForm({
 						type="text"
 						{...register("department")}
 						placeholder="e.g., Computer Science"
-						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						className="w-full rounded-xl border p-3 focus:ring-2 focus:ring-orange-400 focus:outline-none"
 						disabled={isLoading}
 					/>
 					{errors.department && (
@@ -138,7 +138,7 @@ export function EditProfileForm({
 				<button
 					type="submit"
 					disabled={isLoading}
-					className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 p-4 font-bold text-white hover:bg-blue-700 transition-colors disabled:opacity-50"
+					className="flex w-full items-center justify-center gap-2 rounded-xl bg-orange-500 p-4 font-bold text-white hover:bg-orange-600 transition-colors disabled:opacity-50"
 				>
 					<Save size={20} />
 					{isLoading ? "Saving..." : "Save Changes"}

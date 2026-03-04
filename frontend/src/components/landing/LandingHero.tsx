@@ -45,32 +45,30 @@ export function LandingHero(_props: LandingHeroProps) {
 	return (
 		<section
 			ref={containerRef}
-			className="relative -mt-24 min-h-screen overflow-hidden bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 pt-24 text-white"
+			className="relative -mt-24 min-h-screen overflow-hidden bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary)] to-[var(--color-secondary)] pt-16 text-white"
 		>
 			{/* RANDOM FLOATING ICONS */}
 			<FloatingFoodIcons />
 
 			{/* Decorative gradient orbs */}
-			<div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-400/30 blur-3xl" />
-			<div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-indigo-400/30 blur-3xl" />
+			<div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[var(--color-primary)]/30 blur-3xl" />
+			<div className="absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[var(--color-secondary)]/30 blur-3xl" />
 
 			{/* HERO CONTENT */}
-			<div className="relative z-10 container mx-auto flex min-h-screen flex-col items-center justify-center px-4 pt-24 pb-16 text-center sm:px-6 lg:px-8">
+			<div className="relative z-10 container mx-auto flex min-h-screen flex-col items-center justify-center px-4 pt-16 pb-12 text-center sm:px-6 lg:px-8">
 				{/* MAIN HEADING */}
 				<h1
 					ref={titleRef}
 					className="mb-6 text-4xl font-extrabold leading-tight tracking-tight opacity-0 sm:text-5xl md:text-6xl lg:text-7xl"
 				>
 					<span className="block">Smart Cafeteria</span>
-					<span className="mt-2 block bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
-						Management System
-					</span>
+					<span className="mt-2 block text-white">Management System</span>
 				</h1>
 
 				{/* SUB HEADING */}
 				<div
 					ref={subtitleRef}
-					className="mx-auto max-w-3xl space-y-4 text-base leading-relaxed text-blue-100 sm:text-lg md:text-xl"
+					className="mx-auto max-w-3xl space-y-4 text-lg font-semibold leading-relaxed text-white/80 sm:text-xl md:text-2xl"
 				>
 					<p className="opacity-0">
 						Tired of waiting in long cafeteria queues or missing your favorite meals?
@@ -90,7 +88,7 @@ export function LandingHero(_props: LandingHeroProps) {
 				<a
 					ref={ctaRef}
 					href="#meal-categories"
-					className="group mt-10 inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-lg font-bold text-blue-600 opacity-0 shadow-xl shadow-black/10 transition-all duration-300 hover:scale-105 hover:bg-blue-50 hover:shadow-2xl hover:shadow-blue-500/20 sm:px-10 sm:py-5 sm:text-xl"
+					className="group mt-10 inline-flex items-center gap-2 rounded-2xl bg-white px-8 py-4 text-lg font-bold text-[var(--color-primary)] opacity-0 shadow-xl shadow-black/10 transition-all duration-300 hover:scale-105 hover:bg-white/90 hover:shadow-2xl hover:shadow-[var(--color-primary)]/20 sm:px-10 sm:py-5 sm:text-xl"
 				>
 					Explore Menu
 					<svg
@@ -106,20 +104,9 @@ export function LandingHero(_props: LandingHeroProps) {
 				</a>
 			</div>
 
-			{/* Bottom wave decoration */}
+			{/* Bottom bar decoration */}
 			<div className="absolute bottom-0 left-0 right-0">
-				<svg
-					aria-hidden="true"
-					className="h-16 w-full text-blue-600 sm:h-24 md:h-32"
-					viewBox="0 0 1200 120"
-					preserveAspectRatio="none"
-				>
-					<path
-						d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z"
-						fill="currentColor"
-						className="text-blue-600"
-					/>
-				</svg>
+				<div className="h-16 w-full bg-[var(--color-primary)] sm:h-24 md:h-32" />
 			</div>
 		</section>
 	);

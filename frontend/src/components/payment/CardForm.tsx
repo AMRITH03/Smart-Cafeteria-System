@@ -99,7 +99,7 @@ export function CardForm({ disabled = false, onSubmit }: CardFormProps) {
 			<button
 				type="submit"
 				disabled={disabled}
-				className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+				className="w-full rounded-lg bg-orange-500 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
 			>
 				Use Card
 			</button>

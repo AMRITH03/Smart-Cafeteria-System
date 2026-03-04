@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { Slot, Token, TokenStatus } from "@/src/lib/types/staff";
+import { Slot, Token, TokenStatus } from "@/lib/types/staff";
 
 interface StaffState {
 	slots: Slot[];
@@ -17,6 +17,7 @@ interface StaffState {
 	toggleForecastPanel: () => void;
 	updateTokenStatus: (tokenId: string, status: TokenStatus, counterId?: number) => void;
 	addToken: (token: Token) => void;
+	resetStaffState: () => void;
 }
 
 export const useStaffStore = create<StaffState>((set) => ({
@@ -49,4 +50,12 @@ export const useStaffStore = create<StaffState>((set) => ({
 		set((state) => ({
 			tokens: [token, ...state.tokens],
 		})),
+	resetStaffState: () =>
+		set({
+			slots: [],
+			tokens: [],
+			selectedSlot: null,
+			isCreateSlotModalOpen: false,
+			isForecastPanelOpen: false,
+		}),
 }));

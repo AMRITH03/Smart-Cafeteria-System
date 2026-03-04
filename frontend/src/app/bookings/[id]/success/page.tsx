@@ -14,7 +14,7 @@ export default function BookingSuccessPage() {
 	if (isLoading) {
 		return (
 			<div className="flex min-h-screen flex-col items-center justify-center p-4">
-				<Loader2 className="animate-spin text-blue-600 mb-4" size={48} />
+				<Loader2 className="animate-spin text-orange-500 mb-4" size={48} />
 				<p className="text-gray-500 font-medium">Fetching booking confirmation...</p>
 			</div>
 		);
@@ -29,7 +29,7 @@ export default function BookingSuccessPage() {
 				</div>
 				<button
 					onClick={() => router.push("/profile?tab=bookings")}
-					className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold"
+					className="bg-orange-500 text-white px-8 py-3 rounded-2xl font-bold"
 				>
 					Go to Bookings
 				</button>
@@ -50,7 +50,7 @@ export default function BookingSuccessPage() {
 				</button>
 				<button
 					onClick={() => router.push("/profile?tab=bookings")}
-					className="flex items-center justify-center gap-2 rounded-2xl bg-blue-600 p-4 font-bold text-white shadow-xl shadow-blue-100 transition-all hover:bg-blue-700 active:scale-95"
+					className="flex items-center justify-center gap-2 rounded-2xl bg-orange-500 p-4 font-bold text-white shadow-xl shadow-orange-100 transition-all hover:bg-orange-600 active:scale-95"
 				>
 					View History
 				</button>

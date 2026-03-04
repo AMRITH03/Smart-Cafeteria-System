@@ -21,7 +21,7 @@ export function CartList() {
 				</div>
 				<button
 					onClick={() => router.push("/")}
-					className="bg-blue-600 text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-blue-200"
+					className="bg-[var(--color-primary)] text-white px-8 py-3 rounded-2xl font-bold shadow-lg shadow-[var(--color-primary)]/25"
 				>
 					Browse Menu
 				</button>
@@ -55,7 +55,7 @@ export function CartList() {
 
 				<button
 					onClick={() => router.push("/checkout")}
-					className="flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 p-4 font-bold text-white shadow-xl shadow-blue-100 transition-all hover:bg-blue-700 active:scale-95"
+					className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--color-primary)] p-4 font-bold text-white shadow-xl shadow-[var(--color-primary)]/20 transition-all hover:bg-[var(--color-primary)]/90 active:scale-95"
 				>
 					Proceed to Checkout <ArrowRight size={20} />
 				</button>

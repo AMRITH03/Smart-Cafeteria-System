@@ -105,7 +105,7 @@ export function MyBookingSearchBar({
 						<SlidersHorizontal size={16} />
 						<span className="hidden sm:inline">Filters</span>
 						{activeFilterCount > 0 && (
-							<span className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-600 text-[10px] font-bold text-white">
+							<span className="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-primary)] text-[10px] font-bold text-white">
 								{activeFilterCount}
 							</span>
 						)}

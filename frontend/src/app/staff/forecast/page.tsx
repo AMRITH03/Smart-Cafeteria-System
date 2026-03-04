@@ -25,7 +25,7 @@ import {
 const WEATHER_OPTIONS = [
 	{ value: "sunny", label: "Sunny", icon: Sun, color: "text-amber-500" },
 	{ value: "cloudy", label: "Cloudy", icon: Cloud, color: "text-gray-500" },
-	{ value: "rainy", label: "Rainy", icon: CloudRain, color: "text-blue-500" },
+	{ value: "rainy", label: "Rainy", icon: CloudRain, color: "text-[var(--color-primary)]" },
 	{ value: "hot", label: "Hot", icon: Thermometer, color: "text-red-500" },
 	{ value: "cold", label: "Cold", icon: Snowflake, color: "text-cyan-500" },
 ] as const;
@@ -192,7 +192,7 @@ interface PredictionCardProps {
 function PredictionCard({ prediction }: PredictionCardProps) {
 	const getConfidenceColor = (confidence: number) => {
 		if (confidence >= 90) return "text-emerald-600 bg-emerald-50";
-		if (confidence >= 80) return "text-blue-600 bg-blue-50";
+		if (confidence >= 80) return "text-orange-600 bg-orange-50";
 		if (confidence >= 70) return "text-amber-600 bg-amber-50";
 		return "text-gray-600 bg-gray-50";
 	};
@@ -212,9 +212,17 @@ function PredictionCard({ prediction }: PredictionCardProps) {
 				<div className="text-right">
 					<p className="font-bold text-gray-900">{prediction.predicted_quantity}</p>
 					<p className="text-xs text-gray-500">servings</p>
+					<div className="mt-1.5 flex justify-end">
+						<div className="h-2 w-24 rounded-full bg-orange-100/70">
+							<div
+								className="h-2 rounded-full bg-[var(--color-primary)] transition-all duration-300 ease-in-out"
+								style={{ width: `${prediction.confidence}%` }}
+							/>
+						</div>
+					</div>
 				</div>
 				<span
-					className={`px-2 py-1 rounded-lg text-xs font-semibold ${getConfidenceColor(prediction.confidence)}`}
+					className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getConfidenceColor(prediction.confidence)}`}
 				>
 					{prediction.confidence}%
 				</span>
@@ -236,11 +244,11 @@ function SlotCard({ slot }: SlotCardProps) {
 			case "breakfast":
 				return "from-amber-500 to-orange-500";
 			case "lunch":
-				return "from-blue-500 to-indigo-500";
+				return "from-[var(--color-primary)] to-[var(--color-secondary)]";
 			case "snacks":
 				return "from-purple-500 to-pink-500";
 			case "dinner":
-				return "from-indigo-600 to-purple-600";
+				return "from-[var(--color-secondary)] to-purple-600";
 			default:
 				return "from-gray-500 to-gray-600";
 		}
@@ -268,7 +276,7 @@ function SlotCard({ slot }: SlotCardProps) {
 				</div>
 				<div className="flex items-center gap-4">
 					<div className="text-right hidden sm:block">
-						<div className="flex items-center gap-1 text-blue-600">
+						<div className="flex items-center gap-1 text-[var(--color-primary)]">
 							<Users size={16} />
 							<span className="font-semibold">{slot.expected_footfall}</span>
 						</div>
@@ -288,7 +296,7 @@ function SlotCard({ slot }: SlotCardProps) {
 						<p className="text-sm font-medium text-gray-600">
 							{slot.predictions.length} items predicted
 						</p>
-						<div className="flex items-center gap-1 text-sm text-blue-600 sm:hidden">
+						<div className="flex items-center gap-1 text-sm text-[var(--color-primary)] sm:hidden">
 							<Users size={14} />
 							<span className="font-medium">{slot.expected_footfall} expected</span>
 						</div>
@@ -363,21 +371,21 @@ export default function ForecastPage() {
 	return (
 		<div className="min-h-screen bg-gray-50">
 			{/* Header */}
-			<div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white">
+			<div className="bg-[var(--primary)] text-[var(--primary-foreground)]">
 				<div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8">
 					<div className="flex items-center gap-4 mb-6">
 						<button
 							onClick={() => router.push("/staff")}
-							className="p-2 hover:bg-white/10 rounded-full transition-colors"
+							className="p-2 hover:bg-[var(--primary-foreground)]/10 rounded-full transition-colors"
 						>
 							<ArrowLeft size={24} />
 						</button>
 						<div>
 							<h1 className="text-2xl sm:text-3xl font-bold flex items-center gap-2">
-								<BarChart3 size={28} />
+								<BarChart3 size={28} className="text-[var(--primary-foreground)]" />
 								Meal Forecaster
 							</h1>
-							<p className="text-white/80 text-sm sm:text-base">
+							<p className="text-[var(--primary-foreground)]/80 text-sm sm:text-base">
 								Predict meals to prepare based on crowd and weather
 							</p>
 						</div>
@@ -392,7 +400,7 @@ export default function ForecastPage() {
 					<div className="lg:col-span-1">
 						<div className="bg-white rounded-2xl border shadow-sm p-5 sm:p-6 sticky top-24">
 							<h2 className="font-bold text-lg text-gray-900 mb-5 flex items-center gap-2">
-								<Sparkles size={20} className="text-purple-500" />
+								<Sparkles size={20} className="text-[var(--primary)]" />
 								Forecast Parameters
 							</h2>
 
@@ -446,7 +454,7 @@ export default function ForecastPage() {
 											onClick={() => setCrowdExpected(val)}
 											className={`flex-1 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
 												crowdExpected === val
-													? "bg-purple-50 border-purple-300 text-purple-700"
+													? "bg-orange-50 border-orange-300 text-orange-700"
 													: "bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100"
 											}`}
 										>
@@ -475,8 +483,8 @@ export default function ForecastPage() {
 												onClick={() => setWeather(option.value)}
 												className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
 													weather === option.value
-														? "border-purple-500 bg-purple-50 shadow-md"
-														: "border-gray-200 hover:border-purple-200 hover:bg-purple-50/50"
+														? "border-[var(--primary)] bg-orange-50 shadow-md"
+														: "border-gray-200 hover:border-orange-200 hover:bg-orange-50/50"
 												}`}
 											>
 												<Icon size={24} className={option.color} />
@@ -491,7 +499,7 @@ export default function ForecastPage() {
 							<button
 								onClick={handleGenerate}
 								disabled={isGenerating}
-								className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl font-bold text-lg hover:from-purple-700 hover:to-indigo-700 transition-all shadow-lg shadow-purple-500/25 disabled:opacity-70 disabled:cursor-not-allowed"
+								className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-[var(--primary)] text-white rounded-xl font-semibold hover:bg-[var(--primary)]/90 transition-colors shadow-lg shadow-[var(--primary)]/25 disabled:opacity-70 disabled:cursor-not-allowed"
 							>
 								{isGenerating ? (
 									<>
@@ -500,7 +508,7 @@ export default function ForecastPage() {
 									</>
 								) : (
 									<>
-										<Sparkles size={20} />
+										<Sparkles size={18} />
 										Generate Forecast
 									</>
 								)}
@@ -519,7 +527,9 @@ export default function ForecastPage() {
 								</div>
 								<div className="bg-white rounded-xl border p-4">
 									<p className="text-sm text-gray-500 mb-1">Total Servings</p>
-									<p className="text-2xl font-bold text-blue-600">{totalPredictedServings}</p>
+									<p className="text-2xl font-bold text-[var(--color-primary)]">
+										{totalPredictedServings}
+									</p>
 								</div>
 								<div className="bg-white rounded-xl border p-4 col-span-2 sm:col-span-1">
 									<p className="text-sm text-gray-500 mb-1">Meal Slots</p>

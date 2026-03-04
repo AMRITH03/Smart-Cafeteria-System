@@ -269,9 +269,9 @@ function BookingUpdateConfirmationPageContent() {
 					</div>
 
 					<div className="flex items-center gap-2">
-						<div className="loader-dot h-3 w-3 rounded-full bg-blue-500" />
-						<div className="loader-dot h-3 w-3 rounded-full bg-blue-400" />
-						<div className="loader-dot h-3 w-3 rounded-full bg-blue-300" />
+						<div className="loader-dot h-3 w-3 rounded-full bg-[var(--color-primary)]" />
+						<div className="loader-dot h-3 w-3 rounded-full bg-[var(--color-primary)]" />
+						<div className="loader-dot h-3 w-3 rounded-full bg-[var(--color-primary)]" />
 					</div>
 
 					<p className="text-gray-500 font-medium text-sm">Updating your booking...</p>

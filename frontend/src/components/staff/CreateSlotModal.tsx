@@ -282,7 +282,7 @@ export function CreateSlotModal({ isOpen, onClose, mealType }: CreateSlotModalPr
 						<div className="flex items-center justify-between mb-3">
 							<h3 className="text-sm font-semibold text-gray-700">Assign Menu Items</h3>
 							{selectedItems.size > 0 && (
-								<span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+								<span className="text-xs font-medium text-[var(--color-primary)] bg-[var(--color-primary)] px-2 py-1 rounded-full">
 									{selectedItems.size} selected
 								</span>
 							)}
@@ -300,13 +300,13 @@ export function CreateSlotModal({ isOpen, onClose, mealType }: CreateSlotModalPr
 									value={searchQuery}
 									onChange={(e) => setSearchQuery(e.target.value)}
 									placeholder="Search menu items..."
-									className="w-full h-9 pl-9 pr-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+									className="w-full h-9 pl-9 pr-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-[var(--color-primary)] outline-none"
 								/>
 							</div>
 							<select
 								value={categoryFilter}
 								onChange={(e) => setCategoryFilter(e.target.value)}
-								className="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white capitalize"
+								className="h-9 px-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-[var(--color-primary)] outline-none bg-white capitalize"
 							>
 								{categories.map((cat) => (
 									<option key={cat} value={cat} className="capitalize">
@@ -355,7 +355,7 @@ export function CreateSlotModal({ isOpen, onClose, mealType }: CreateSlotModalPr
 						type="button"
 						onClick={handleSubmit(onSubmit)}
 						disabled={isSubmitting || selectedItems.size === 0}
-						className="px-5 py-2.5 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+						className="px-5 py-2.5 text-sm font-semibold text-white bg-[var(--color-primary)] rounded-xl hover:bg-[var(--color-primary)] transition-colors shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
 					>
 						{isSubmitting && <Loader2 size={16} className="animate-spin" />}
 						{isSubmitting ? "Creating..." : "Create Slot"}

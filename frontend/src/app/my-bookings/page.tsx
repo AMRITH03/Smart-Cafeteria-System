@@ -28,7 +28,7 @@ export default function MyBookingsPage() {
 					<ArrowLeft size={20} />
 				</button>
 				<div className="flex items-center gap-3">
-					<div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+					<div className="p-2 bg-orange-50 text-orange-500 rounded-lg">
 						<BookCheck size={22} />
 					</div>
 					<h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>

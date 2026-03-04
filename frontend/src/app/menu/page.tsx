@@ -94,7 +94,7 @@ function MenuPageContent() {
 				<p className="text-gray-600">Please select a time slot first.</p>
 				<button
 					onClick={() => router.push(`/slots?type=${mealType || "breakfast"}`)}
-					className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold"
+					className="bg-[var(--color-primary)] text-white px-6 py-2 rounded-xl font-bold"
 				>
 					Go back to Slots
 				</button>

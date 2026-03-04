@@ -288,7 +288,9 @@ export default function BookingConfirmationPage() {
 						<p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
 							Booking Reference
 						</p>
-						<p className="text-lg font-black text-blue-600 tracking-wide">{bookingRef}</p>
+						<p className="text-lg font-black text-[var(--color-primary)] tracking-wide">
+							{bookingRef}
+						</p>
 					</div>
 				)}
 

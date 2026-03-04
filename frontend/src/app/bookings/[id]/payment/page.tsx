@@ -39,7 +39,7 @@ export default function BookingPaymentPage() {
 			<div className="rounded-3xl bg-gray-50 p-1 min-h-[400px] flex items-center justify-center">
 				{isPending && (
 					<div className="flex flex-col items-center gap-3">
-						<Loader2 className="animate-spin text-blue-600" size={32} />
+						<Loader2 className="animate-spin text-[var(--color-primary)]" size={32} />
 						<p className="text-gray-500 font-medium">Preparing secure checkout...</p>
 					</div>
 				)}
@@ -51,7 +51,7 @@ export default function BookingPaymentPage() {
 						</div>
 						<button
 							onClick={() => window.location.reload()}
-							className="text-blue-600 font-bold hover:underline"
+							className="text-[var(--color-primary)] font-bold hover:underline"
 						>
 							Retry Payment
 						</button>

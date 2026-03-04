@@ -106,7 +106,7 @@ export function EditProfileFormContainer() {
 				<p className="text-red-500 font-medium">Failed to load profile.</p>
 				<button
 					onClick={() => router.push("/profile")}
-					className="px-6 py-3 bg-blue-600 text-white rounded-2xl font-bold shadow-lg hover:bg-blue-700 transition-all"
+					className="px-6 py-3 bg-[var(--color-primary)] text-white rounded-2xl font-bold shadow-lg hover:bg-[var(--color-primary)]/90 transition-all"
 				>
 					Return to Profile
 				</button>
