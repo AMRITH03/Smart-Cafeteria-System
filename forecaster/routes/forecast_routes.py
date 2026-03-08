@@ -19,8 +19,8 @@ def debug_data():
         return {
             "message": "No rows returned from data extraction.",
             "hint": "Check that booking_menu_items rows exist with bookings "
-                    "whose booking_status is NOT 'cancelled' or 'expired', "
-                    "and that the related bookings have a meal_slots row.",
+            "whose booking_status is NOT 'cancelled' or 'expired', "
+            "and that the related bookings have a meal_slots row.",
             "menu_items_found": len(names),
             "rows": [],
         }

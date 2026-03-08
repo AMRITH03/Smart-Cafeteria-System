@@ -15,10 +15,7 @@ def fetch_historical_consumption() -> pd.DataFrame:
     while True:
         response = (
             supabase.table("booking_menu_items")
-            .select(
-                "menu_item_id, quantity, "
-                "bookings!inner(booking_status, meal_slots!inner(slot_date))"
-            )
+            .select("menu_item_id, quantity, bookings!inner(booking_status, meal_slots!inner(slot_date))")
             .filter("bookings.booking_status", "not.in", '("cancelled")')
             .range(offset, offset + page_size - 1)
             .execute()
@@ -54,10 +51,7 @@ def fetch_historical_consumption() -> pd.DataFrame:
     if not aggregated:
         return pd.DataFrame(columns=["menu_item_id", "slot_date", "total_qty"])
 
-    records = [
-        {"menu_item_id": key[0], "slot_date": key[1], "total_qty": qty}
-        for key, qty in aggregated.items()
-    ]
+    records = [{"menu_item_id": key[0], "slot_date": key[1], "total_qty": qty} for key, qty in aggregated.items()]
 
     df = pd.DataFrame(records)
     df["slot_date"] = pd.to_datetime(df["slot_date"])
@@ -66,13 +60,6 @@ def fetch_historical_consumption() -> pd.DataFrame:
 
 
 def fetch_menu_item_names() -> dict[int, str]:
-    response = (
-        supabase.table("menu_items")
-        .select("menu_item_id, item_name")
-        .execute()
-    )
+    response = supabase.table("menu_items").select("menu_item_id, item_name").execute()
 
-    return {
-        row["menu_item_id"]: row["item_name"]
-        for row in (response.data or [])
-    }
+    return {row["menu_item_id"]: row["item_name"] for row in (response.data or [])}

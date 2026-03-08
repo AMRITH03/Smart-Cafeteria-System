@@ -1,5 +1,5 @@
 import logging
-from datetime import date, timedelta
+from datetime import date
 from typing import Any
 
 import pandas as pd
@@ -14,7 +14,7 @@ def _fit_and_predict(
     item_df: pd.DataFrame,
     periods: int = 7,
 ) -> pd.DataFrame:
-    
+
     model = Prophet(
         daily_seasonality=True,
         weekly_seasonality=True,
@@ -43,9 +43,7 @@ def forecast_all_items(
     single_point_items: dict[int, float] = {}
 
     for menu_item_id, group in consumption_df.groupby("menu_item_id"):
-        prophet_df = group.rename(
-            columns={"slot_date": "ds", "total_qty": "y"}
-        )[["ds", "y"]].copy()
+        prophet_df = group.rename(columns={"slot_date": "ds", "total_qty": "y"})[["ds", "y"]].copy()
 
         if len(prophet_df) < 2:
             avg_qty = float(prophet_df["y"].mean())
@@ -62,9 +60,7 @@ def forecast_all_items(
             forecast = _fit_and_predict(prophet_df, periods=periods)
             results[int(menu_item_id)] = forecast
         except Exception:
-            logger.exception(
-                "Prophet failed for menu_item_id=%s", menu_item_id
-            )
+            logger.exception("Prophet failed for menu_item_id=%s", menu_item_id)
 
     return results, single_point_items
 
