@@ -55,10 +55,7 @@ api.interceptors.response.use(
 		const message = error?.response?.data?.message || error.message || "Something went wrong";
 
 		// Log error in development
-		if (
-			process.env.NODE_ENV === "development" &&
-			!(status === 401 && error?.config?.url?.includes(API_ROUTES.AUTH.SESSION))
-		) {
+		if (process.env.NODE_ENV === "development") {
 			console.error("[API Error]", {
 				status,
 				message,
@@ -69,20 +66,10 @@ api.interceptors.response.use(
 		}
 
 		if (status === 401) {
-			if (error.config?.url?.includes(API_ROUTES.AUTH.SESSION)) {
-				return Promise.resolve({ data: null });
-			} else if (error.config?.url?.includes(`${API_ROUTES.AUTH.REGISTER}/otp`)) {
-				toast.error("Signup session expired. Please sign up again.");
-			} else {
-				if (!error.config?.url?.includes(API_ROUTES.AUTH.LOGOUT)) {
-					toast.error("Session expired. Please login again.");
-				}
-				resetClientSession();
+			if (!error.config?.url?.includes(API_ROUTES.AUTH.LOGOUT)) {
+				toast.error("Session expired. Please login again.");
 			}
-		} else if (status === 400) {
-			if (error.config?.url?.includes(`${API_ROUTES.AUTH.LOGIN}`)) {
-				toast.error("Invalid email domain.");
-			}
+			resetClientSession();
 		} else if (status === 404) {
 			const contentType = error?.response?.headers?.["content-type"] || "";
 			if (contentType.includes("application/json") && error?.response?.data?.message) {

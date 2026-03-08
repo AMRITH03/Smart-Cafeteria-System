@@ -6,17 +6,17 @@ import { useAuthStore } from "@/stores/auth.store";
 
 export default function RequireAuth({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
-	const token = useAuthStore((state) => state.token);
+	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const isHydrated = useAuthStore((state) => state.isHydrated);
 
 	useEffect(() => {
 		if (!isHydrated) return;
-		if (!token) {
+		if (!isAuthenticated) {
 			router.replace("/login");
 		}
-	}, [isHydrated, token, router]);
+	}, [isHydrated, isAuthenticated, router]);
 
-	if (!isHydrated || !token) {
+	if (!isHydrated || !isAuthenticated) {
 		return null;
 	}
 

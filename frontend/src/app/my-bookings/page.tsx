@@ -8,14 +8,14 @@ import { ArrowLeft, BookCheck } from "lucide-react";
 
 export default function MyBookingsPage() {
 	const router = useRouter();
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 
 	// Redirect guest users
 	useEffect(() => {
-		if (isHydrated && !token) {
+		if (isHydrated && !isAuthenticated) {
 			router.push("/login?redirect=/my-bookings");
 		}
-	}, [isHydrated, token, router]);
+	}, [isHydrated, isAuthenticated, router]);
 
 	return (
 		<div className="mx-auto w-full max-w-3xl md:max-w-4xl lg:max-w-5xl xl:max-w-6xl p-4 space-y-6">

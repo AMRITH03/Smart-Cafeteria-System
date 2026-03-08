@@ -1,13 +1,11 @@
 import { Router } from "express";
 import {
-	forgotPassword,
+	completeProfile,
 	getProfile,
 	getUserByIdController,
 	logoutUser,
-	registerUser,
-	signInUser,
+	oauthCallback,
 	testRoute,
-	updatePassword,
 	updateProfile,
 } from "../controllers/authController";
 import { requireAuth } from "../middlewares/auth.middleware";
@@ -15,11 +13,9 @@ import { requireAuth } from "../middlewares/auth.middleware";
 const router = Router();
 
 router.get("/test", testRoute);
-router.post("/register", registerUser);
-router.post("/signIn", signInUser);
+router.post("/oauth/callback", oauthCallback);
+router.post("/complete-profile", requireAuth, completeProfile);
 router.post("/signOut", requireAuth, logoutUser);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", updatePassword);
 router.get("/profile", requireAuth, getProfile);
 router.put("/profile", requireAuth, updateProfile);
 router.get("/user/:userId", requireAuth, getUserByIdController);

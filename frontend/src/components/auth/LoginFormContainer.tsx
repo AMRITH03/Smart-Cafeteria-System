@@ -1,21 +1,28 @@
 "use client";
 
+import { useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 import { LoginForm } from "./LoginForm";
-import { useLogin } from "@/hooks/auth/useLogin";
 
 export function LoginFormContainer() {
-	const { mutate: login, isPending } = useLogin();
+	const [isLoading, setIsLoading] = useState(false);
 
-	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-
-		const formData = new FormData(e.currentTarget);
-
-		login({
-			email: formData.get("email") as string,
-			password: formData.get("password") as string,
+	async function handleGoogleSignIn() {
+		setIsLoading(true);
+		const { error } = await supabase.auth.signInWithOAuth({
+			provider: "google",
+			options: {
+				redirectTo: `${window.location.origin}/auth/callback`,
+			},
 		});
+
+		if (error) {
+			toast.error("Failed to start Google sign-in");
+			setIsLoading(false);
+		}
+		// If successful, the browser will redirect to Google then back to /auth/callback
 	}
 
-	return <LoginForm onSubmit={handleSubmit} isLoading={isPending} />;
+	return <LoginForm onGoogleSignIn={handleGoogleSignIn} isLoading={isLoading} />;
 }

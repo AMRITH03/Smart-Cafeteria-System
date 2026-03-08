@@ -26,7 +26,7 @@ type EditProfileFormValuesInferred = z.infer<typeof editProfileSchema>;
 
 export function EditProfileFormContainer() {
 	const router = useRouter();
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 	const { data: profile, isLoading: isProfileLoading } = useProfile();
 	const updateProfileMutation = useUpdateProfile();
 
@@ -47,10 +47,10 @@ export function EditProfileFormContainer() {
 
 	// Redirect if not authenticated
 	useEffect(() => {
-		if (isHydrated && !token) {
+		if (isHydrated && !isAuthenticated) {
 			router.push("/login?redirect=/profile/edit");
 		}
-	}, [isHydrated, token, router]);
+	}, [isHydrated, isAuthenticated, router]);
 
 	// Populate form with profile data
 	useEffect(() => {

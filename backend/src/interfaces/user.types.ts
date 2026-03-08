@@ -1,12 +1,9 @@
-export interface RegisterUserRequest {
-	email: string;
-	password: string;
+export interface CompleteProfileData {
 	first_name: string;
 	last_name: string;
 	college_id: string;
 	mobile?: string;
 	department?: string;
-	role: string;
 }
 
 export interface UserDetails {

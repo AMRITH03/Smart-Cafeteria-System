@@ -12,7 +12,7 @@ import { ArrowLeft, Trash2 } from "lucide-react";
 export default function CheckoutPage() {
 	const router = useRouter();
 	const { items, totalAmount, removeItem } = useCartStore();
-	const { token } = useAuthStore();
+	const { token, isAuthenticated } = useAuthStore();
 	const { slotId, groupMembers, getSelectedSlot } = useBookingStore();
 
 	const [editBookingId, setEditBookingId] = useState<number | null>(null);
@@ -47,7 +47,7 @@ export default function CheckoutPage() {
 	useEffect(() => {
 		if (!hydrated) return;
 
-		if (!token) {
+		if (!isAuthenticated) {
 			toast.error("Please login to proceed");
 			router.push(`/login?redirect=${encodeURIComponent("/checkout")}`);
 			return;
@@ -74,7 +74,7 @@ export default function CheckoutPage() {
 		return <div className="p-8 text-center text-gray-500">Loading checkout...</div>;
 	}
 
-	if (!token) return null;
+	if (!isAuthenticated) return null;
 	if (items.length === 0) return null;
 	if (!slotId) return null;
 
@@ -106,7 +106,7 @@ export default function CheckoutPage() {
 	};
 
 	const handleCheckout = () => {
-		if (!token) {
+		if (!isAuthenticated) {
 			toast.error("Please login to proceed");
 			router.push(`/login?redirect=${encodeURIComponent("/checkout")}`);
 			return;

@@ -90,6 +90,9 @@ importers:
       '@stripe/stripe-js':
         specifier: ^8.7.0
         version: 8.7.0
+      '@supabase/supabase-js':
+        specifier: ^2.93.3
+        version: 2.93.3
       '@tanstack/react-query':
         specifier: ^5.90.17
         version: 5.90.20(react@19.2.3)

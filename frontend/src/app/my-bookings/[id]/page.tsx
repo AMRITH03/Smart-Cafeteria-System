@@ -9,15 +9,15 @@ import { ArrowLeft } from "lucide-react";
 export default function BookingDetailPage() {
 	const router = useRouter();
 	const params = useParams();
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 
 	const bookingId = Number(params.id);
 
 	useEffect(() => {
-		if (isHydrated && !token) {
+		if (isHydrated && !isAuthenticated) {
 			router.push(`/login?redirect=/my-bookings/${bookingId}`);
 		}
-	}, [isHydrated, token, router, bookingId]);
+	}, [isHydrated, isAuthenticated, router, bookingId]);
 
 	if (!bookingId || Number.isNaN(bookingId)) {
 		return <div className="p-8 text-center text-red-500">Invalid booking ID.</div>;

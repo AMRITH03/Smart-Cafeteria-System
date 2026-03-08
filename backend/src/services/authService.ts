@@ -1,40 +1,75 @@
 import { getAuthenticatedClient, public_client, service_client } from "../config/supabase";
-import type { SignInRequest, signInResponse } from "../interfaces/auth.types";
+import type { OAuthCallbackResponse } from "../interfaces/auth.types";
 import { type ServiceResponse, STATUS } from "../interfaces/status.types";
 import type {
-	RegisterUserRequest,
+	CompleteProfileData,
 	UpdateProfileRequest,
 	UserProfile,
 } from "../interfaces/user.types";
 import { getCurrentISOStringIST } from "../utils/dateUtils";
 
-export const createUser = async (
-	validatedUser: RegisterUserRequest
-): Promise<ServiceResponse<void>> => {
-	const { email, password, role, first_name, last_name, college_id, mobile, department } =
-		validatedUser;
-
-	const { data: authData, error: authError } = await service_client.auth.admin.createUser({
-		email,
-		password,
-		email_confirm: true,
-		user_metadata: { first_name, last_name, college_id, role },
+/**
+ * Handle the OAuth callback — validate the session and check if public.users profile exists.
+ */
+export const handleOAuthCallback = async (
+	accessToken: string,
+	refreshToken: string
+): Promise<ServiceResponse<OAuthCallbackResponse>> => {
+	// Validate the tokens by setting a session
+	const { data: sessionData, error: sessionError } = await public_client.auth.setSession({
+		access_token: accessToken,
+		refresh_token: refreshToken,
 	});
 
-	if (authError)
+	if (sessionError || !sessionData.user) {
 		return {
 			success: false,
-			error: authError.message,
-			statusCode: STATUS.BADREQUEST,
+			error: sessionError?.message || "Invalid OAuth session",
+			statusCode: STATUS.UNAUTHORIZED,
 		};
-	if (!authData.user)
-		return {
-			success: false,
-			error: "User creation failed unexpectedly",
-			statusCode: STATUS.SERVERERROR,
-		};
+	}
 
-	const userId = authData.user.id;
+	const user = sessionData.user;
+
+	// Check whether a public.users record exists
+	const { data: profile } = await service_client
+		.from("users")
+		.select("role, email")
+		.eq("id", user.id)
+		.single();
+
+	if (profile) {
+		return {
+			success: true,
+			statusCode: STATUS.SUCCESS,
+			data: {
+				profileComplete: true,
+				role: profile.role,
+				email: profile.email,
+			},
+		};
+	}
+
+	return {
+		success: true,
+		statusCode: STATUS.SUCCESS,
+		data: {
+			profileComplete: false,
+			email: user.email,
+		},
+	};
+};
+
+/**
+ * Create the public.users profile for an OAuth-authenticated user.
+ */
+export const completeUserProfile = async (
+	userId: string,
+	email: string,
+	profileData: CompleteProfileData
+): Promise<ServiceResponse<void>> => {
+	const { first_name, last_name, college_id, mobile, department } = profileData;
+
 	const { error: profileError } = await service_client.from("users").insert([
 		{
 			id: userId,
@@ -44,57 +79,26 @@ export const createUser = async (
 			college_id,
 			mobile: mobile || null,
 			department: department || null,
-			role: role,
+			role: "user",
 			account_status: "active",
 			wallet_balance: 0.0,
 		},
 	]);
 
 	if (profileError) {
-		await public_client.auth.admin.deleteUser(userId);
 		return {
 			success: false,
 			error: profileError.message,
-			statusCode: STATUS.SERVERERROR,
+			statusCode: STATUS.BADREQUEST,
 		};
 	}
 
-	return { success: true, statusCode: STATUS.CREATED };
-};
-
-export const signIn = async (
-	validatedUser: SignInRequest
-): Promise<ServiceResponse<signInResponse>> => {
-	const { email, password } = validatedUser;
-
-	const { data: authData, error: authError } = await public_client.auth.signInWithPassword({
-		email,
-		password,
+	// Update auth user metadata so middleware can read it
+	await service_client.auth.admin.updateUserById(userId, {
+		user_metadata: { first_name, last_name, college_id, role: "user" },
 	});
 
-	if (authError)
-		return {
-			success: false,
-			error: authError.message,
-			statusCode: STATUS.BADREQUEST,
-		};
-	if (!authData.user)
-		return {
-			success: false,
-			error: "User creation failed unexpectedly",
-			statusCode: STATUS.SERVERERROR,
-		};
-
-	return {
-		success: true,
-		statusCode: STATUS.ACCEPTED,
-		data: {
-			accessToken: authData.session.access_token,
-			refreshToken: authData.session.refresh_token,
-			role: authData.user.user_metadata.role,
-			email: authData.user.email,
-		},
-	};
+	return { success: true, statusCode: STATUS.CREATED };
 };
 
 export const logOut = async (accessToken: string): Promise<ServiceResponse<void>> => {
@@ -122,37 +126,6 @@ export const logOut = async (accessToken: string): Promise<ServiceResponse<void>
 				statusCode: STATUS.SERVERERROR,
 			};
 		}
-	}
-};
-
-export const requestPasswordReset = async (email: string): Promise<void> => {
-	const { error } = await service_client.auth.resetPasswordForEmail(email, {
-		redirectTo: `${process.env.FRONTEND_URL}/reset-password`,
-	});
-
-	if (error) {
-		throw new Error(error.message);
-	}
-};
-
-export const updateUserPassword = async (
-	accessToken: string,
-	newPassword: string
-): Promise<void> => {
-	const {
-		data: { user },
-		error,
-	} = await service_client.auth.getUser(accessToken);
-	if (error || !user) {
-		throw new Error("Invalid or expired session token");
-	}
-
-	const { error: updateError } = await service_client.auth.admin.updateUserById(user.id, {
-		password: newPassword,
-	});
-
-	if (updateError) {
-		throw new Error(updateError.message);
 	}
 };
 

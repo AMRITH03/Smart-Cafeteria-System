@@ -5,14 +5,14 @@ import { useAuthStore } from "@/stores/auth.store";
 import { ProfileDropdown } from "./ProfileDropdown";
 
 export function Navbar() {
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 
 	// Prevent flicker before Zustand rehydrates
 	if (!isHydrated) {
 		return null;
 	}
 
-	const isLoggedIn = Boolean(token);
+	const isLoggedIn = isAuthenticated;
 
 	return (
 		<header className="fixed top-0 left-0 right-0 z-50 px-4 pt-4 sm:px-6 lg:px-8">
@@ -35,16 +35,9 @@ export function Navbar() {
 							<>
 								<Link
 									href="/login"
-									className="rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-orange-50 hover:text-orange-500 sm:px-4"
-								>
-									Login
-								</Link>
-
-								<Link
-									href="/register"
 									className="rounded-xl bg-gradient-to-r from-orange-400 to-orange-500 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-orange-500/25 transition-all duration-300 hover:from-orange-500 hover:to-orange-600 hover:shadow-lg hover:shadow-orange-500/30 sm:px-5"
 								>
-									Register
+									Login
 								</Link>
 							</>
 						)}
