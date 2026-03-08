@@ -3,11 +3,11 @@ from typing import Any
 
 import pandas as pd
 
-from config.supabase_client import supabase
+from config.supabase_client import get_supabase
 
 
 def fetch_historical_consumption() -> pd.DataFrame:
-
+    supabase = get_supabase()
     page_size = 1000
     all_rows: list[dict[str, Any]] = []
     offset = 0
@@ -60,6 +60,7 @@ def fetch_historical_consumption() -> pd.DataFrame:
 
 
 def fetch_menu_item_names() -> dict[int, str]:
+    supabase = get_supabase()
     response = supabase.table("menu_items").select("menu_item_id, item_name").execute()
 
     return {row["menu_item_id"]: row["item_name"] for row in (response.data or [])}

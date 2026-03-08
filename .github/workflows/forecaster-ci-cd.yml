@@ -70,9 +70,6 @@ jobs:
         run: python -m py_compile main.py
 
       - name: Check imports
-        env:
-          SUPABASE_URL: https://placeholder.supabase.co
-          SUPABASE_SERVICE_ROLE_KEY: placeholder-key-for-ci
         run: python -c "from main import app; print('FastAPI app imports OK')"
 
   # ── CD – Deploy to Render (only on main push) ──────
