@@ -15,6 +15,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.12.4",
   "devDependencies": {
-    "husky": "^9.1.7"
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.3.5",
+    "husky": "^9.1.7",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6"
   }
 }
