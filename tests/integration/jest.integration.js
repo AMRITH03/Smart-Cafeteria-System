@@ -6,7 +6,7 @@ process.env.NEXT_PUBLIC_BACKEND_URL = "http://localhost:3001";
 module.exports = {
   testEnvironment: 'node',
   rootDir: '../../',
-  testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
+  testMatch: ["<rootDir>/tests/**/*.test.ts"],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
       tsconfig: path.resolve(__dirname, '../../frontend/tsconfig.json')
