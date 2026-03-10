@@ -5,7 +5,15 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { AuthService } from "@/services/auth.service";
-import { User, LogOut, ReceiptText, BookCheck, Package, BarChart3 } from "lucide-react";
+import {
+	User,
+	LogOut,
+	ReceiptText,
+	BookCheck,
+	Package,
+	BarChart3,
+	UtensilsCrossed,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useRole } from "@/hooks/useRole";
 import { resetClientSession } from "@/lib/session";
@@ -80,6 +88,15 @@ export function ProfileDropdown() {
 
 					{isStaff ? (
 						<>
+							<Link
+								href="/staff/menu"
+								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"
+								onClick={() => setIsOpen(false)}
+							>
+								<UtensilsCrossed size={18} />
+								Menu
+							</Link>
+
 							<Link
 								href="/staff/inventory"
 								className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-orange-50 hover:text-orange-500 transition-colors"

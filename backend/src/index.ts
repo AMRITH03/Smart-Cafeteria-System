@@ -9,6 +9,7 @@ import tokenRoutes from "./routes/tokenRoutes";
 import paymentRoutes from "./routes/paymentRoutes";
 import inventoryRoutes from "./routes/inventoryRoutes";
 import forecastRoutes from "./routes/forecastRoutes";
+import menuItemRoutes from "./routes/menuItemRoutes";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ app.use("/api/tokens", tokenRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/forecast", forecastRoutes);
+app.use("/api/menu-items", menuItemRoutes);
 
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
