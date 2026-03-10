@@ -50,37 +50,58 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Warm Cafeteria Theme */
+
+  --background: #fff5e1;
+  /* soft cream */
+  --foreground: #3a2e2a;
+  /* warm dark text */
+
+  --card: #ffffff;
+  --card-foreground: #3a2e2a;
+
+  --popover: #ffffff;
+  --popover-foreground: #3a2e2a;
+
+  --primary: #ff8c42;
+  /* warm orange */
+  --primary-foreground: #ffffff;
+
+  --secondary: #ffc107;
+  /* amber */
+  --secondary-foreground: #3a2e2a;
+
+  --muted: #ffe6cc;
+  --muted-foreground: #6b4f3b;
+
+  --accent: #ffb347;
+  --accent-foreground: #3a2e2a;
+
+  --destructive: #ef4444;
+
+  --border: #f1d6b8;
+  --input: #f1d6b8;
+
+  --ring: #ff8c42;
+
+  --chart-1: #ff8c42;
+  --chart-2: #ffc107;
+  --chart-3: #ffb347;
+  --chart-4: #ff6347;
+  --chart-5: #ffd9a0;
+
+  --sidebar: #fff3e0;
+  --sidebar-foreground: #3a2e2a;
+
+  --sidebar-primary: #ff8c42;
+  --sidebar-primary-foreground: #ffffff;
+
+  --sidebar-accent: #ffc107;
+  --sidebar-accent-foreground: #3a2e2a;
+
+  --sidebar-border: #f1d6b8;
+  --sidebar-ring: #ff8c42;
 }
 
 .dark {
@@ -121,7 +142,42 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@keyframes floatLuxury {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(15px, -20px) rotate(2deg);
+  }
+
+  25% {
+    transform: translate(20px, -25px) rotate(2deg);
+  }
+
+  50% {
+    transform: translate(-15px, -45px) rotate(-3deg);
+  }
+
+  75% {
+    transform: translate(-25px, -20px) rotate(2deg);
+  }
+
+}
+
+.animate-float-luxury {
+  animation-name: floatLuxury;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-fill-mode: both;
 }

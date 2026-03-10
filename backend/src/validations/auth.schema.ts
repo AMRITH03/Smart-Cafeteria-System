@@ -11,10 +11,7 @@ export const passwordSchema = z
 	.regex(/[A-Z]/, "Password must contain at least one uppercase letter")
 	.regex(/[a-z]/, "Password must contain at least one lowercase letter")
 	.regex(/[0-9]/, "Password must contain at least one number")
-	.regex(
-		/[\W_]/,
-		"Password must contain at least one special character (e.g., !@#$%)",
-	);
+	.regex(/[\W_]/, "Password must contain at least one special character (e.g., !@#$%)");
 
 export const registerSchema = z.object({
 	// email: z.string().regex(amritaEmailRegex, "Email must be a valid Amrita ID"),
@@ -46,7 +43,18 @@ export const updatePasswordSchema = z.object({
 	password: passwordSchema,
 });
 
+export const updateProfileSchema = z.object({
+	first_name: z.string().min(2, "First Name is too short").optional(),
+	last_name: z.string().min(1, "Last Name is too short").optional(),
+	mobile: z
+		.string()
+		.regex(/^[6-9]\d{9}$/, "Mobile number must be exactly 10 digits")
+		.optional(),
+	department: z.string().optional(),
+});
+
 export type RegisterUserInput = z.infer<typeof registerSchema>;
 export type SignInUserInput = z.infer<typeof signInSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type updatePasswordInupt = z.infer<typeof updatePasswordSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

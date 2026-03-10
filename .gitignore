@@ -6,13 +6,24 @@ Thumbs.db
 *.log
 *.tmp
 *.swp
-node_modules
+
+# Node
+node_modules/
+smart-cafeteria-management
+
+# Archives / exports (DO NOT COMMIT)
+*.zip
+*.tar
+*.rar
+*.7z
 
 # Environment variables (never commit secrets)
 .env
+.env.*
+!.env.example
 
 # =====================================================
-# FRONTEND (Next.js + TypeScript + Tailwind)
+# FRONTEND (Next.js + TypeScript)
 # =====================================================
 frontend/node_modules/
 frontend/.next/
@@ -21,16 +32,14 @@ frontend/dist/
 frontend/.turbo/
 frontend/.vercel/
 
-# Next.js / Vite / tooling
+# Caches / tooling
 frontend/.eslintcache
 frontend/.swc/
 frontend/.cache/
 
 # TypeScript
 frontend/*.tsbuildinfo
-
-# Tailwind
-frontend/.tailwind/
+next-env.d.ts
 
 # =====================================================
 # BACKEND (Node.js + Express + TypeScript)
@@ -62,14 +71,14 @@ forecast_engine/.venv/
 forecast_engine/venv/
 forecast_engine/env/
 
-# FastAPI / Uvicorn
+# FastAPI / testing / lint
 forecast_engine/.mypy_cache/
 forecast_engine/.pytest_cache/
 forecast_engine/.ruff_cache/
 forecast_engine/.coverage
 forecast_engine/htmlcov/
 
-# ML / Data artifacts (VERY IMPORTANT)
+# ML / data artifacts (generated ONLY)
 forecast_engine/data/
 forecast_engine/models/
 forecast_engine/*.pkl
@@ -98,9 +107,12 @@ forecast_engine/*.csv
 # =====================================================
 coverage/
 *.lcov
+playwright-report/
+cypress/videos/
+cypress/screenshots/
 
 # =====================================================
-# MISC
+# PACKAGE MANAGER LOGS
 # =====================================================
 npm-debug.log*
 yarn-debug.log*

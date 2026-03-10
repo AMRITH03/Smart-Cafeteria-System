@@ -3,60 +3,51 @@ import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import authRoutes from "./routes/authRoutes";
-import * as promClient from "prom-client";
+import bookingRoutes from "./routes/bookingRoutes";
+import mealSlotRoutes from "./routes/mealSlotRoutes";
+import otpRoutes from "./routes/otpRoutes";
+import tokenRoutes from "./routes/tokenRoutes";
+import paymentRoutes from "./routes/paymentRoutes";
+import inventoryRoutes from "./routes/inventoryRoutes";
+import forecastRoutes from "./routes/forecastRoutes";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// PROMETHEUS METRICS ------------------------------------------------------
-// Collect default metrics (CPU, memory, etc.) with a prefix so metrics are grouped
-promClient.collectDefaultMetrics({ prefix: "smart_cafeteria_" });
-
-// Histogram for request durations and counter for request counts
-const httpRequestDuration = new promClient.Histogram({
-	name: "http_request_duration_seconds",
-	help: "Duration of HTTP requests in seconds",
-	labelNames: ["method", "route", "status_code"],
-	buckets: [0.001, 0.005, 0.01, 0.05, 0.1, 0.3, 0.5, 1, 2, 5],
-});
-
-const httpRequestsTotal = new promClient.Counter({
-	name: "http_requests_total",
-	help: "Total number of HTTP requests",
-	labelNames: ["method", "route", "status_code"],
-});
-
-// Metrics middleware to measure request durations and count
-app.use((req, res, next) => {
-	const end = httpRequestDuration.startTimer();
-	res.on("finish", () => {
-		const route = req.route?.path || req.path || "unknown";
-		httpRequestsTotal.inc({ method: req.method, route, status_code: String(res.statusCode) });
-		end({ method: req.method, route, status_code: String(res.statusCode) });
-	});
-	next();
-});
-
-// Expose metrics endpoint
-app.get("/metrics", async (req, res) => {
-	try {
-		res.set("Content-Type", promClient.register.contentType);
-		res.send(await promClient.register.metrics());
-	} catch (err: any) {
-		res.status(500).send(err.message);
-	}
-});
-// -------------------------------------------------------------------------
-
 //MIDDLEWARES
-app.use(cors());
+app.use(
+	cors({
+		origin: process.env.FRONTEND_URL,
+		credentials: true,
+	})
+);
+
+app.use("/api/payments/stripe/webhook", express.raw({ type: "application/json" }));
+
 app.use(express.json());
 app.use(cookieParser());
 
 //AUTH ROUTES
 app.use("/api/auth", authRoutes);
+
+//OTP ROUTES
+app.use("/api/otp", otpRoutes);
+
+//BOOKING ROUTES
+app.use("/api/bookings", bookingRoutes);
+
+//MEAL SLOT ROUTES
+app.use("/api/meal-slots", mealSlotRoutes);
+
+//TOKEN ROUTES
+app.use("/api/tokens", tokenRoutes);
+
+//PAYMENT ROUTES (S.2.3 - No-Show Handling & Token Re-allocation)
+app.use("/api/payments", paymentRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/forecast", forecastRoutes);
 
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
