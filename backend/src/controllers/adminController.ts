@@ -22,6 +22,7 @@ import {
 	updateUserRoleSchema,
 	userListQuerySchema,
 } from "../validations/admin.schema";
+import { querySystemLogs } from "../services/lokiService";
 
 // ─── Create Staff User ──────────────────────────────────────────────────────
 
@@ -371,6 +372,33 @@ export const getUserRestrictionsController = async (req: Request, res: Response)
 		res.status(result.statusCode).json({ success: true, data: result.data });
 	} catch (error) {
 		console.error("User Restrictions Error:", error);
+		res.status(STATUS.SERVERERROR).json({ error: "Internal Server Error" });
+	}
+};
+
+// ─── System Logs (Loki) ─────────────────────────────────────────────────────
+
+export const getSystemLogsController = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const { level, event, search, start, end, limit } = req.query;
+
+		const result = await querySystemLogs({
+			level: level as string | undefined,
+			event: event as string | undefined,
+			search: search as string | undefined,
+			start: start as string | undefined,
+			end: end as string | undefined,
+			limit: limit ? Number(limit) : undefined,
+		});
+
+		if (!result.success) {
+			res.status(result.statusCode).json({ success: false, error: result.error });
+			return;
+		}
+
+		res.status(result.statusCode).json({ success: true, data: result.data });
+	} catch (error) {
+		console.error("System Logs Error:", error);
 		res.status(STATUS.SERVERERROR).json({ error: "Internal Server Error" });
 	}
 };

@@ -6,6 +6,8 @@ import type {
 	BlockUserPayload,
 	CreateStaffPayload,
 	RevenueSummary,
+	SystemLogFilters,
+	SystemLogResponse,
 	SystemStats,
 	UpdateUserRolePayload,
 	UserDetailsResponse,
@@ -107,6 +109,21 @@ export const AdminService = {
 		if (filters.limit) params.set("limit", String(filters.limit));
 		const res = await apiGet<SuccessResponse<AuditLogResponse>>(
 			`${BASE}/audit-logs?${params.toString()}`
+		);
+		return res.data;
+	},
+
+	// ─── System Logs (Loki) ────────────────────────────────────
+	getSystemLogs: async (filters: SystemLogFilters): Promise<SystemLogResponse> => {
+		const params = new URLSearchParams();
+		if (filters.level) params.set("level", filters.level);
+		if (filters.event) params.set("event", filters.event);
+		if (filters.search) params.set("search", filters.search);
+		if (filters.start) params.set("start", filters.start);
+		if (filters.end) params.set("end", filters.end);
+		if (filters.limit) params.set("limit", String(filters.limit));
+		const res = await apiGet<SuccessResponse<SystemLogResponse>>(
+			`${BASE}/system-logs?${params.toString()}`
 		);
 		return res.data;
 	},

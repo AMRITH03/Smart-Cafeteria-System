@@ -13,6 +13,7 @@ import {
 	oauthCallbackSchema,
 	updateProfileSchema,
 } from "../validations/auth.schema";
+import { logger } from "../config/logger";
 
 export const testRoute = async (res: Response): Promise<void> => {
 	res.send("Backend is running!");
@@ -56,11 +57,25 @@ export const oauthCallback = async (req: Request, res: Response): Promise<void> 
 			maxAge: 30 * 24 * 60 * 60 * 1000,
 		});
 
+		logger.info("User login successful", {
+			event: "auth_login",
+			user_email: result.data?.email,
+			status_code: result.statusCode,
+			profile_complete: result.data?.profileComplete,
+			user_role: result.data?.role,
+			ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+		});
+
 		res.status(result.statusCode).json({
 			success: true,
 			data: result.data,
 		});
 	} catch (error) {
+		logger.error("Login failed with error", {
+			event: "auth_login_error",
+			error: (error as Error).message,
+			ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+		});
 		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
 	}
 };
@@ -93,11 +108,24 @@ export const completeProfile = async (req: Request, res: Response): Promise<void
 			return;
 		}
 
+		logger.info("Profile completed", {
+			event: "auth_profile_complete",
+			user_id: userId,
+			user_email: email,
+			status_code: result.statusCode,
+			ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+		});
+
 		res.status(result.statusCode).json({
 			success: true,
 			message: "Profile completed successfully",
 		});
 	} catch (error) {
+		logger.error("Profile completion failed", {
+			event: "auth_profile_complete_error",
+			error: (error as Error).message,
+			ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+		});
 		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
 	}
 };
@@ -120,9 +148,23 @@ export const logoutUser = async (req: Request, res: Response) => {
 	if (access_token) {
 		const result = await logOut(access_token);
 		if (!result.success) {
-			console.warn("Supabase SignOut failed:", result.error);
+			logger.warn("Supabase SignOut failed", {
+				event: "auth_logout_error",
+				error: result.error,
+				user_id: req.user?.id,
+				user_email: req.user?.email,
+				ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+			});
 		}
 	}
+
+	logger.info("User logged out", {
+		event: "auth_logout",
+		user_id: req.user?.id,
+		user_email: req.user?.email,
+		status_code: 200,
+		ip: req.ip || req.headers["x-forwarded-for"]?.toString(),
+	});
 
 	return res.status(STATUS.SUCCESS).json({ message: "Logged out successfully" });
 };

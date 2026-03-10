@@ -4,6 +4,7 @@ import { AdminService } from "@/services/admin.service";
 import type {
 	UserListFilters,
 	AuditLogFilters,
+	SystemLogFilters,
 	CreateStaffPayload,
 	BlockUserPayload,
 	UpdateUserRolePayload,
@@ -157,6 +158,16 @@ export function useAuditLogs(filters: AuditLogFilters) {
 	return useQuery({
 		queryKey: ["admin", "audit-logs", filters],
 		queryFn: () => AdminService.getAuditLogs(filters),
+		staleTime: 15 * 1000,
+	});
+}
+
+// ─── System Logs (Loki) ───────────────────────────────────────
+
+export function useSystemLogs(filters: SystemLogFilters) {
+	return useQuery({
+		queryKey: ["admin", "system-logs", filters],
+		queryFn: () => AdminService.getSystemLogs(filters),
 		staleTime: 15 * 1000,
 	});
 }

@@ -14,6 +14,7 @@ import adminRoutes from "./routes/adminRoutes";
 import { register } from "./config/metrics";
 import { logger } from "./config/logger";
 import { metricsMiddleware } from "./middlewares/metrics.middleware";
+import { httpLoggerMiddleware } from "./middlewares/httpLogger.middleware";
 import { startMetricsPush } from "./config/metricsPush";
 
 dotenv.config();
@@ -46,6 +47,9 @@ app.get("/healthz", (_req, res) => {
 
 // Track HTTP request metrics
 app.use(metricsMiddleware);
+
+// Log all HTTP requests to Loki via winston
+app.use(httpLoggerMiddleware);
 
 // Note: Stripe webhook needs raw body, so we handle it in paymentRoutes before express.json()
 // The webhook route uses express.raw() middleware internally

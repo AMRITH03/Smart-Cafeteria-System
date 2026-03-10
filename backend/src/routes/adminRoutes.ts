@@ -8,6 +8,7 @@ import {
 	getAuditLogsController,
 	getRecentBookingsController,
 	getRevenueSummaryController,
+	getSystemLogsController,
 	getSystemStatsController,
 	getUserDetailsController,
 	getUserRestrictionsController,
@@ -40,5 +41,8 @@ router.get("/users/:userId/restrictions", getUserRestrictionsController);
 
 // ─── Audit Logs ──────────────────────────────────────────────────────────────
 router.get("/audit-logs", getAuditLogsController);
+
+// ─── System Logs (Loki) ─────────────────────────────────────────────────────
+router.get("/system-logs", getSystemLogsController);
 
 export default router;
