@@ -35,14 +35,27 @@ export const updateIngredientSchema = z.object({
 });
 
 // Schema for updating inventory (restock, consumption, etc.)
-export const updateInventorySchema = z.object({
-	ingredient_id: z.number().int().positive("Ingredient ID must be a positive integer"),
-	update_type: z.enum(["restock", "consumption", "adjustment", "waste"], {
-		message: "Invalid update type",
-	}),
-	quantity_change: z.number().positive("Quantity change must be a positive number"),
-	notes: z.string().max(500, "Notes cannot exceed 500 characters").optional(),
-});
+export const updateInventorySchema = z
+	.object({
+		ingredient_id: z.number().int().positive("Ingredient ID must be a positive integer"),
+		update_type: z.enum(["restock", "consumption", "adjustment", "waste"], {
+			message: "Invalid update type",
+		}),
+		quantity_change: z.number().min(0, "Quantity change must be non-negative"),
+		notes: z.string().max(500, "Notes cannot exceed 500 characters").optional(),
+	})
+	.refine(
+		(data) => {
+			if (data.update_type !== "adjustment") {
+				return data.quantity_change > 0;
+			}
+			return true;
+		},
+		{
+			message: "Quantity change must be positive for restock, consumption, and waste",
+			path: ["quantity_change"],
+		}
+	);
 
 // Type exports
 export type AddIngredientInput = z.infer<typeof addIngredientSchema>;

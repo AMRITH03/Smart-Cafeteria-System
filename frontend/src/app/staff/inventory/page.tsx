@@ -586,14 +586,144 @@ function DeleteConfirmModal({
 	);
 }
 
+/* ---------------- UPDATE STOCK MODAL ---------------- */
+
+interface UpdateStockModalProps {
+	ingredient: Ingredient;
+	onClose: () => void;
+	onSubmit: (newQuantity: number, notes?: string) => void;
+	isPending: boolean;
+}
+
+function UpdateStockModal({ ingredient, onClose, onSubmit, isPending }: UpdateStockModalProps) {
+	const [newQuantity, setNewQuantity] = useState(String(ingredient.current_quantity));
+	const [notes, setNotes] = useState("");
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		const qty = parseFloat(newQuantity);
+		if (!Number.isNaN(qty) && qty >= 0) {
+			onSubmit(qty, notes.trim() || undefined);
+		}
+	};
+
+	const parsedQty = parseFloat(newQuantity);
+	const diff = !Number.isNaN(parsedQty) ? parsedQty - ingredient.current_quantity : 0;
+
+	return (
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+			<div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+				<div className="flex items-center justify-between mb-6">
+					<h2 className="text-xl font-bold text-gray-900">Update Stock Quantity</h2>
+					<button
+						onClick={onClose}
+						className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+					>
+						<X size={20} className="text-gray-500" />
+					</button>
+				</div>
+
+				<div className="mb-4 p-4 bg-gray-50 rounded-xl">
+					<p className="text-sm text-gray-500">Ingredient</p>
+					<p className="font-semibold text-gray-900 text-lg">{ingredient.ingredient_name}</p>
+					<p className="text-sm text-gray-500 mt-1">
+						Current stock:{" "}
+						<span className="font-medium text-gray-700">
+							{ingredient.current_quantity} {ingredient.unit_of_measurement}
+						</span>
+					</p>
+				</div>
+
+				<form onSubmit={handleSubmit} className="space-y-4">
+					<div>
+						<label
+							htmlFor="update-stock-quantity"
+							className="block text-sm font-medium text-gray-700 mb-2"
+						>
+							New Quantity ({ingredient.unit_of_measurement})
+						</label>
+						<input
+							id="update-stock-quantity"
+							type="number"
+							min="0"
+							step="any"
+							value={newQuantity}
+							onChange={(e) => setNewQuantity(e.target.value)}
+							placeholder={`Enter new quantity in ${ingredient.unit_of_measurement}`}
+							className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all text-lg"
+							required
+						/>
+						{!Number.isNaN(parsedQty) && parsedQty >= 0 && diff !== 0 && (
+							<p
+								className={`text-sm mt-1.5 font-medium ${
+									diff > 0 ? "text-emerald-600" : "text-red-600"
+								}`}
+							>
+								{diff > 0 ? "+" : ""}
+								{diff} {ingredient.unit_of_measurement} from current stock
+							</p>
+						)}
+					</div>
+
+					<div>
+						<label
+							htmlFor="update-stock-notes"
+							className="block text-sm font-medium text-gray-700 mb-2"
+						>
+							Notes (optional)
+						</label>
+						<input
+							id="update-stock-notes"
+							type="text"
+							value={notes}
+							onChange={(e) => setNotes(e.target.value)}
+							placeholder="Reason for stock adjustment"
+							maxLength={500}
+							className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20 outline-none transition-all"
+						/>
+					</div>
+
+					<div className="flex gap-3 pt-2">
+						<button
+							type="button"
+							onClick={onClose}
+							className="flex-1 px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							disabled={isPending || newQuantity === "" || Number.isNaN(parsedQty) || parsedQty < 0}
+							className="flex-1 px-4 py-3 rounded-xl bg-[var(--primary)] text-white font-semibold hover:bg-[var(--primary)]/90 transition-colors shadow-lg shadow-[var(--primary)]/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+						>
+							{isPending ? (
+								<>
+									<Loader2 size={18} className="animate-spin" />
+									Updating...
+								</>
+							) : (
+								<>
+									<Package size={18} />
+									Update Stock
+								</>
+							)}
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	);
+}
+
 /* ---------------- INVENTORY ROW ---------------- */
 
 interface InventoryRowProps {
 	ingredient: Ingredient;
 	onRestock: (ingredient: Ingredient) => void;
+	onUpdateStock: (ingredient: Ingredient) => void;
 }
 
-function InventoryRow({ ingredient, onRestock }: InventoryRowProps) {
+function InventoryRow({ ingredient, onRestock, onUpdateStock }: InventoryRowProps) {
 	const stockStatus = getStockStatus(ingredient.current_quantity, ingredient.minimum_threshold);
 
 	return (
@@ -623,13 +753,22 @@ function InventoryRow({ ingredient, onRestock }: InventoryRowProps) {
 			</td>
 
 			<td className="px-4 py-4 sm:px-6">
-				<button
-					onClick={() => onRestock(ingredient)}
-					className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--primary)]/90 transition-colors"
-				>
-					<RefreshCw size={14} />
-					Restock
-				</button>
+				<div className="flex gap-2">
+					<button
+						onClick={() => onUpdateStock(ingredient)}
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
+					>
+						<Pencil size={14} />
+						Update Stock
+					</button>
+					<button
+						onClick={() => onRestock(ingredient)}
+						className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[var(--primary)] text-white text-sm font-medium rounded-lg hover:bg-[var(--primary)]/90 transition-colors"
+					>
+						<RefreshCw size={14} />
+						Restock
+					</button>
+				</div>
 			</td>
 		</tr>
 	);
@@ -645,6 +784,7 @@ export default function InventoryPage() {
 	const [restockTarget, setRestockTarget] = useState<Ingredient | null>(null);
 	const [editTarget, setEditTarget] = useState<Ingredient | null>(null);
 	const [deleteTarget, setDeleteTarget] = useState<Ingredient | null>(null);
+	const [updateStockTarget, setUpdateStockTarget] = useState<Ingredient | null>(null);
 	const [showAddModal, setShowAddModal] = useState(false);
 
 	const { data, isLoading } = useIngredients(searchQuery, showLowStockOnly);
@@ -709,6 +849,21 @@ export default function InventoryPage() {
 		deleteIngredientMutation.mutate(deleteTarget.ingredient_id, {
 			onSuccess: () => setDeleteTarget(null),
 		});
+	};
+
+	const handleUpdateStock = (newQuantity: number, notes?: string) => {
+		if (!updateStockTarget) return;
+		updateInventoryMutation.mutate(
+			{
+				ingredient_id: updateStockTarget.ingredient_id,
+				update_type: "adjustment",
+				quantity_change: newQuantity,
+				notes,
+			},
+			{
+				onSuccess: () => setUpdateStockTarget(null),
+			}
+		);
 	};
 
 	return (
@@ -834,6 +989,7 @@ export default function InventoryPage() {
 											key={ingredient.ingredient_id}
 											ingredient={ingredient}
 											onRestock={(ing) => setRestockTarget(ing)}
+											onUpdateStock={(ing) => setUpdateStockTarget(ing)}
 										/>
 									))
 								)}
@@ -862,6 +1018,16 @@ export default function InventoryPage() {
 						setDeleteTarget(restockTarget);
 						setRestockTarget(null);
 					}}
+					isPending={updateInventoryMutation.isPending}
+				/>
+			)}
+
+			{/* UPDATE STOCK MODAL */}
+			{updateStockTarget && (
+				<UpdateStockModal
+					ingredient={updateStockTarget}
+					onClose={() => setUpdateStockTarget(null)}
+					onSubmit={handleUpdateStock}
 					isPending={updateInventoryMutation.isPending}
 				/>
 			)}
