@@ -1,11 +1,11 @@
 export const API_ROUTES = {
 	//Backend routes
 	AUTH: {
-		REGISTER: "/auth/user/register",
-		LOGIN: "/auth/user/login",
-		LOGOUT: "/auth/user/logout",
-		SESSION: "/auth/user/session",
-		USER_BY_ID: "api/auth/user", // GET /api/auth/user/:userId
+		OAUTH_CALLBACK: "/api/auth/oauth/callback",
+		COMPLETE_PROFILE: "/api/auth/complete-profile",
+		LOGOUT: "/api/auth/signOut",
+		PROFILE: "/api/auth/profile",
+		USER_BY_ID: "/api/auth/user",
 	},
 	BOOKINGS: {
 		SLOTS: "/api/bookings/slots",

@@ -5,14 +5,14 @@ import type { UserProfile, UpdateProfilePayload } from "../../types/profile/prof
 import { useAuthStore } from "@/stores/auth.store";
 
 export function useProfile() {
-	const token = useAuthStore((state) => state.token);
+	const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 	const isHydrated = useAuthStore((state) => state.isHydrated);
 
 	return useQuery<UserProfile>({
 		queryKey: ["profile"],
 		queryFn: ProfileService.getProfile,
 		staleTime: 5 * 60 * 1000,
-		enabled: isHydrated && Boolean(token),
+		enabled: isHydrated && isAuthenticated,
 	});
 }
 

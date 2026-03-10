@@ -8,14 +8,14 @@ import { useAuthStore } from "@/stores/auth.store";
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
 	const router = useRouter();
 	const { isStaff, isLoading } = useRole();
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 
 	useEffect(() => {
 		// Wait for hydration
 		if (!isHydrated || isLoading) return;
 
 		// Redirect if not logged in
-		if (!token) {
+		if (!isAuthenticated) {
 			router.replace("/login");
 			return;
 		}
@@ -24,7 +24,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 		if (!isStaff) {
 			router.replace("/");
 		}
-	}, [isHydrated, isLoading, token, isStaff, router]);
+	}, [isHydrated, isLoading, isAuthenticated, isStaff, router]);
 
 	// Show loading while hydrating
 	if (!isHydrated || isLoading) {

@@ -44,7 +44,7 @@ type EditProfileFormValues = z.infer<typeof editProfileSchema>;
 export default function ProfilePage() {
 	const router = useRouter();
 	const queryClient = useQueryClient();
-	const { token, isHydrated } = useAuthStore();
+	const { isAuthenticated, isHydrated } = useAuthStore();
 	const { data: profile, isLoading, error } = useProfile();
 	const updateProfileMutation = useUpdateProfile();
 	const { isStaff } = useRole();
@@ -69,10 +69,10 @@ export default function ProfilePage() {
 
 	// Redirect guest users
 	useEffect(() => {
-		if (isHydrated && !token) {
+		if (isHydrated && !isAuthenticated) {
 			router.replace("/login");
 		}
-	}, [isHydrated, token, router]);
+	}, [isHydrated, isAuthenticated, router]);
 
 	// Populate form when profile loads or editing starts
 	useEffect(() => {
@@ -91,7 +91,7 @@ export default function ProfilePage() {
 		router.replace("/login");
 	};
 
-	if (isHydrated && !token) {
+	if (isHydrated && !isAuthenticated) {
 		return null;
 	}
 
