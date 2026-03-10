@@ -1,20 +1,16 @@
 import type { Request, Response } from "express";
 import { STATUS } from "../interfaces/status.types";
 import {
-	createUser,
+	completeUserProfile,
 	getUserById,
 	getUserProfile,
+	handleOAuthCallback,
 	logOut,
-	requestPasswordReset,
-	signIn,
-	updateUserPassword,
 	updateUserProfile,
 } from "../services/authService";
 import {
-	forgotPasswordSchema,
-	registerSchema,
-	signInSchema,
-	updatePasswordSchema,
+	completeProfileSchema,
+	oauthCallbackSchema,
 	updateProfileSchema,
 } from "../validations/auth.schema";
 
@@ -22,54 +18,38 @@ export const testRoute = async (res: Response): Promise<void> => {
 	res.send("Backend is running!");
 };
 
-export const registerUser = async (req: Request, res: Response): Promise<void> => {
+/**
+ * POST /api/auth/oauth/callback
+ * Receives access_token + refresh_token from the frontend after Google OAuth redirect,
+ * sets httpOnly cookies, and reports whether the public.users profile is complete.
+ */
+export const oauthCallback = async (req: Request, res: Response): Promise<void> => {
 	try {
-		const validatedData = registerSchema.safeParse(req.body);
+		const validatedData = oauthCallbackSchema.safeParse(req.body);
 
 		if (!validatedData.success) {
 			res.status(STATUS.BADREQUEST).json({ error: `Validation Error: ${validatedData.error}` });
 			return;
 		}
-		const result = await createUser(validatedData.data);
+
+		const { access_token, refresh_token } = validatedData.data;
+		const result = await handleOAuthCallback(access_token, refresh_token);
 
 		if (!result.success) {
 			res.status(result.statusCode).json({ success: false, error: result.error });
 			return;
 		}
 
-		res.status(result.statusCode).json({
-			success: true,
-			message: "User registered successfully",
-			data: result.data,
-		});
-	} catch (error) {
-		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
-	}
-};
-
-export const signInUser = async (req: Request, res: Response): Promise<void> => {
-	try {
-		const validatedData = signInSchema.safeParse(req.body);
-		if (!validatedData.success) {
-			res.status(STATUS.BADREQUEST).json({ error: `Validation Error: ${validatedData.error}` });
-			return;
-		}
-		const result = await signIn(validatedData.data);
 		const isProduction = process.env.NODE_ENV === "production";
 
-		if (!result.success) {
-			res.status(result.statusCode).json({ success: false, error: result.error });
-			return;
-		}
-
-		res.cookie("access_token", result.data?.accessToken, {
+		res.cookie("access_token", access_token, {
 			httpOnly: true,
 			secure: isProduction,
 			sameSite: "strict",
 			maxAge: 60 * 60 * 1000,
 		});
 
-		res.cookie("refresh_token", result.data?.refreshToken, {
+		res.cookie("refresh_token", refresh_token, {
 			httpOnly: true,
 			secure: isProduction,
 			sameSite: "strict",
@@ -78,8 +58,44 @@ export const signInUser = async (req: Request, res: Response): Promise<void> => 
 
 		res.status(result.statusCode).json({
 			success: true,
-			message: "User signed in successfully",
 			data: result.data,
+		});
+	} catch (error) {
+		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
+	}
+};
+
+/**
+ * POST /api/auth/complete-profile
+ * Creates the public.users record for an OAuth user who has not yet completed registration.
+ */
+export const completeProfile = async (req: Request, res: Response): Promise<void> => {
+	try {
+		const userId = req.user?.id;
+		const email = req.user?.email;
+
+		if (!userId || !email) {
+			res.status(STATUS.UNAUTHORIZED).json({ error: "User not authenticated" });
+			return;
+		}
+
+		const validatedData = completeProfileSchema.safeParse(req.body);
+
+		if (!validatedData.success) {
+			res.status(STATUS.BADREQUEST).json({ error: `Validation Error: ${validatedData.error}` });
+			return;
+		}
+
+		const result = await completeUserProfile(userId, email, validatedData.data);
+
+		if (!result.success) {
+			res.status(result.statusCode).json({ success: false, error: result.error });
+			return;
+		}
+
+		res.status(result.statusCode).json({
+			success: true,
+			message: "Profile completed successfully",
 		});
 	} catch (error) {
 		res.status(STATUS.SERVERERROR).json({ message: "Internal Server Error", error: error });
@@ -102,80 +118,16 @@ export const logoutUser = async (req: Request, res: Response) => {
 	return res.status(STATUS.SUCCESS).json({ message: "Logged out successfully" });
 };
 
-export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
-	try {
-		const validatedData = forgotPasswordSchema.safeParse(req.body);
-
-		if (!validatedData.success) {
-			res.status(STATUS.BADREQUEST).json({ error: `Validation Error: ${validatedData.error}` });
-			return;
-		}
-
-		await requestPasswordReset(validatedData.data.email);
-
-		res.status(STATUS.SUCCESS).json({
-			message: "If an account exists, a password reset link has been sent.",
-		});
-	} catch (error) {
-		console.error("Forgot Password Error:", error);
-		res.status(STATUS.SERVERERROR).json({ message: "Internal server error" });
-	}
-};
-
-export const updatePassword = async (req: Request, res: Response): Promise<void> => {
-	try {
-		const validatedData = updatePasswordSchema.safeParse(req.body);
-
-		if (!validatedData.success) {
-			res.status(STATUS.BADREQUEST).json({ error: `Validation Error: ${validatedData.error}` });
-			return;
-		}
-
-		// Get the Access Token from the Authorization header (sent by frontend)
-		const authHeader = req.headers.authorization;
-		if (!authHeader || !authHeader.startsWith("Bearer ")) {
-			res.status(STATUS.UNAUTHORIZED).json({ message: "Missing or invalid authentication token" });
-			return;
-		}
-
-		const accessToken = authHeader.split(" ")[1];
-		await updateUserPassword(accessToken, validatedData.data.password);
-
-		res.status(STATUS.SUCCESS).json({ message: "Password updated successfully" });
-	} catch (error: unknown) {
-		if (error instanceof Error) {
-			console.error("Error:", error.message);
-			res.status(STATUS.SERVERERROR).json({ error: error.message || "failed to update password" });
-		} else {
-			console.error("Unknown error:", error);
-			res.status(500).json({ error: "An unknown error occurred" });
-		}
-	}
-};
-
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
 	try {
-		const userId = req.user?.college_id;
+		const userId = req.user?.id;
 
 		if (!userId) {
 			res.status(STATUS.UNAUTHORIZED).json({ error: "User not authenticated" });
 			return;
 		}
 
-		// Get user ID from the users table using college_id
-		const { service_client } = await import("../config/supabase");
-		const { data: userData, error: userError } = await service_client
-			.from("users")
-			.select("id")
-			.eq("college_id", userId)
-			.single();
-
-		if (userError || !userData) {
-			res.status(STATUS.NOTFOUND).json({ error: "User not found" });
-			return;
-		}
-
-		const result = await getUserProfile(userData.id);
+		const result = await getUserProfile(userId);
 
 		if (!result.success) {
 			res.status(result.statusCode).json({ success: false, error: result.error });
@@ -194,7 +146,7 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
 
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
 	try {
-		const userId = req.user?.college_id;
+		const userId = req.user?.id;
 
 		if (!userId) {
 			res.status(STATUS.UNAUTHORIZED).json({ error: "User not authenticated" });
@@ -208,20 +160,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 			return;
 		}
 
-		// Get user ID from the users table using college_id
-		const { service_client } = await import("../config/supabase");
-		const { data: userData, error: userError } = await service_client
-			.from("users")
-			.select("id")
-			.eq("college_id", userId)
-			.single();
-
-		if (userError || !userData) {
-			res.status(STATUS.NOTFOUND).json({ error: "User not found" });
-			return;
-		}
-
-		const result = await updateUserProfile(userData.id, validatedData.data);
+		const result = await updateUserProfile(userId, validatedData.data);
 
 		if (!result.success) {
 			res.status(result.statusCode).json({ success: false, error: result.error });

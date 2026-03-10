@@ -2,9 +2,11 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 interface AuthStoreState {
+	isAuthenticated: boolean;
+	isHydrated: boolean;
 	token: string | null;
 	email: string | null;
-	isHydrated: boolean;
+	setAuthenticated: (value: boolean) => void;
 	setToken: (token: string | null) => void;
 	setEmail: (email: string | null) => void;
 	logout: () => void;
@@ -14,28 +16,30 @@ interface AuthStoreState {
 export const useAuthStore = create<AuthStoreState>()(
 	persist(
 		(set) => ({
+			isAuthenticated: false,
+			isHydrated: false,
 			token: null,
 			email: null,
-			isHydrated: false,
 
 			setToken: (token) => set({ token }),
 
 			setEmail: (email) => set({ email }),
 
-			logout: () => set({ token: null, email: null }),
+			setAuthenticated: (value) => set({ isAuthenticated: value }),
+
+			logout: () => set({ isAuthenticated: false }),
 
 			setHydrated: () => set({ isHydrated: true }),
 		}),
 		{
 			name: "auth-store",
 
-			// called when Zustand rehydrates from localStorage
 			onRehydrateStorage: () => (state) => {
 				state?.setHydrated();
 			},
 
-			// only persist what is needed
 			partialize: (state) => ({
+				isAuthenticated: state.isAuthenticated,
 				token: state.token,
 				email: state.email,
 			}),

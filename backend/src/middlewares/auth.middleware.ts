@@ -1,6 +1,27 @@
 import type { NextFunction, Request, Response } from "express";
-import { public_client } from "../config/supabase";
+import { public_client, service_client } from "../config/supabase";
 import type { UserDetails } from "../interfaces/user.types";
+
+/**
+ * Build UserDetails from the auth user + optional public.users profile.
+ * OAuth users may not yet have a public.users record (profile incomplete).
+ */
+async function buildUserDetails(userId: string, email: string): Promise<UserDetails> {
+	const { data: profile } = await service_client
+		.from("users")
+		.select("college_id, first_name, last_name, role")
+		.eq("id", userId)
+		.single();
+
+	return {
+		id: userId,
+		email,
+		role: profile?.role ?? "",
+		college_id: profile?.college_id ?? "",
+		first_name: profile?.first_name ?? "",
+		last_name: profile?.last_name ?? "",
+	};
+}
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
 	const accessToken = req.cookies.access_token;
@@ -13,15 +34,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		} = await public_client.auth.getUser(accessToken);
 
 		if (user && !error && user.email) {
-			const userDetails: UserDetails = {
-				id: user.id,
-				email: user.email,
-				role: user.user_metadata.role,
-				college_id: user.user_metadata.college_id,
-				first_name: user.user_metadata.first_name,
-				last_name: user.user_metadata.last_name,
-			};
-			req.user = userDetails;
+			req.user = await buildUserDetails(user.id, user.email);
 			req.token = accessToken;
 			return next();
 		}
@@ -56,15 +69,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
 		});
 
 		if (data.user?.email) {
-			const userDetails: UserDetails = {
-				id: data.user.id,
-				email: data.user.email,
-				role: data.user?.user_metadata.role,
-				college_id: data.user?.user_metadata.college_id,
-				first_name: data.user?.user_metadata.first_name,
-				last_name: data.user?.user_metadata.last_name,
-			};
-			req.user = userDetails;
+			req.user = await buildUserDetails(data.user.id, data.user.email);
 			req.token = data.session.access_token;
 		}
 		return next();
