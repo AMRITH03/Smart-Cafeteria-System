@@ -162,7 +162,7 @@ export const extendPaymentWindowController = async (req: Request, res: Response)
 	} catch (error) {
 		res.status(STATUS.SERVERERROR).json({
 			success: false,
-			message: "Internal Server Error",
+			message: " Internal Server Error",
 			error: error instanceof Error ? error.message : "Unknown error",
 		});
 	}
